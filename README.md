@@ -1,4 +1,7 @@
-fronttier
-=========
+frontier
+========
 
-Front router written in golang
+A routing reverse-proxy written in Go.
+
+Under heavy construction.
+
