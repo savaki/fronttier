@@ -5,8 +5,16 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/savaki/fronttier/mock"
+	. "github.com/smartystreets/goconvey/convey"
 	"net/http"
+	"testing"
 )
+
+func TestBuilder(t *testing.T) {
+	Convey("#AddFilter", t, func() {
+
+	})
+}
 
 var _ = Describe("Builder", func() {
 	Context("#AddFilter", func() {

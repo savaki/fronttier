@@ -1,10 +1,10 @@
 package filter
 
 import (
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
 	"github.com/savaki/fronttier/mock"
+	. "github.com/smartystreets/goconvey/convey"
 	"net/http"
+	"testing"
 )
 
 type SampleFilter struct {
@@ -23,9 +23,9 @@ func (self *SampleFilter) Filter(w http.ResponseWriter, req *http.Request, targe
 	target.ServeHTTP(w, req)
 }
 
-var _ = Describe("Filter", func() {
-	Context("#Flatten", func() {
-		It("should do something", func() {
+func TestFilter(t *testing.T) {
+	Convey("#Flatten", t, func() {
+		Convey("should process handlers in order", func() {
 			f1 := &SampleFilter{"a"}
 			f2 := &SampleFilter{"b"}
 			target := &mock.Handler{}
@@ -37,17 +37,17 @@ var _ = Describe("Filter", func() {
 
 			// Then
 			handler.ServeHTTP(nil, request)
-			Expect(request.Header.Get("X-Key")).To(Equal("a,b"), "expected headers to be applied in sequential order")
+			So(request.Header.Get("X-Key"), ShouldEqual, "a,b")
 		})
 
-		It("should return the handler if no filters were specified", func() {
+		Convey("should return the handler if no filters were specified", func() {
 			target := &mock.Handler{}
 
 			// When
 			handler := Flatten(nil, target)
 
 			// Then
-			Expect(handler).To(Equal(target), "expected our original handler back")
+			So(handler, ShouldEqual, target)
 		})
 	})
-})
+}
