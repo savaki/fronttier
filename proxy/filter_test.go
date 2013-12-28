@@ -2,14 +2,14 @@ package proxy
 
 import (
 	"errors"
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
+	. "github.com/smartystreets/goconvey/convey"
 	"net/http"
+	"testing"
 )
 
-var _ = Describe("Filter", func() {
-	Context("#flatten", func() {
-		It("should return the target if no filtering needs to happen", func() {
+func TestFilter(t *testing.T) {
+	Convey("#flatten", t, func() {
+		Convey("should return the target if no filtering needs to happen", func() {
 			gripe := errors.New("blah")
 			var filters []Filter
 			var target = func(*http.Request) (*http.Response, error) {
@@ -21,37 +21,44 @@ var _ = Describe("Filter", func() {
 
 			// Then
 			response, err := result(nil)
-			Expect(response).To(BeNil(), "expected no response")
-			Expect(err).To(Equal(gripe), "expected our error to have been thrown")
+			So(response, ShouldBeNil)
+			So(err, ShouldEqual, gripe)
 		})
 
-		It("should process filters before the target", func() {
+		Convey("should process filters before the target", func() {
 			gripe := errors.New("blah")
 			filter := func(req *http.Request, next Handler) (*http.Response, error) {
 				return nil, gripe
 			}
 			filters := []Filter{filter}
+			targetInvoked := false
 			target := func(*http.Request) (*http.Response, error) {
-				Fail("target should not have been called")
+				targetInvoked = true
 				return nil, nil
 			}
 
 			// When
 			handler := flatten(filters, target)
 			handler(nil)
+
+			So(targetInvoked, ShouldBeFalse)
 		})
 
-		It("should process the FIRST filter provided FIRST", func() {
+		Convey("should process the FIRST filter provided FIRST", func() {
 			gripe := errors.New("blah")
 			filter1 := func(req *http.Request, next Handler) (*http.Response, error) {
 				return nil, gripe
 			}
+
+			filter2Invoked := false
 			filter2 := func(req *http.Request, next Handler) (*http.Response, error) {
-				Fail("second filter should not have been called")
+				filter2Invoked = true
 				return nil, nil
 			}
+
+			targetInvoked := false
 			target := func(*http.Request) (*http.Response, error) {
-				Fail("target handler should not have been called")
+				targetInvoked = true
 				return nil, nil
 			}
 
@@ -60,6 +67,8 @@ var _ = Describe("Filter", func() {
 
 			// Then
 			handler(nil)
+			So(filter2Invoked, ShouldBeFalse)
+			So(targetInvoked, ShouldBeFalse)
 		})
 	})
-})
+}

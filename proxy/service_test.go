@@ -1,25 +1,26 @@
 package proxy
 
 import (
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
+	. "github.com/smartystreets/goconvey/convey"
 	"net/http"
+	"testing"
 )
 
-var _ = Describe("Service", func() {
-	Context("#authorized", func() {
-		It("should return true if no requiredHeaders defined", func() {
+func TestService(t *testing.T) {
+	Convey("#authorized", t, func() {
+		Convey("When NO requiredHeaders are defined", func() {
 			handler := &proxyService{}
 			request, _ := http.NewRequest("GET", "http://www.google.com", nil)
 
 			// When
 			result := handler.authorized(request)
 
-			// Then
-			Expect(result).To(Equal(true), "expected true when no required headers present")
+			Convey("Then authorized should return true", func() {
+				So(result, ShouldBeTrue)
+			})
 		})
 
-		It("should return true if all the required headers are present", func() {
+		Convey("When ALL required headers are present", func() {
 			required := "X-User-Id"
 			handler := &proxyService{}
 			handler.requiredHeaders = []string{required}
@@ -30,24 +31,12 @@ var _ = Describe("Service", func() {
 			result := handler.authorized(request)
 
 			// Then
-			Expect(result).To(Equal(true), "expected true when no required headers present")
+			Convey("Then #authorized should return true", func() {
+				So(result, ShouldBeTrue)
+			})
 		})
 
-		It("should return false if the required header is missing", func() {
-			required := "X-Required"
-			handler := &proxyService{}
-			handler.requiredHeaders = []string{required}
-			request, _ := http.NewRequest("GET", "http://www.google.com", nil)
-			request.Header.Set(required, "blah")
-
-			// When
-			result := handler.authorized(request)
-
-			// Then
-			Expect(result).To(Equal(true), "expected true when our header is present")
-		})
-
-		It("should return false if some of the required headers are missing", func() {
+		Convey("When some of the required headers are missing", func() {
 			required1 := "X-Required-1"
 			required2 := "X-Required-2"
 			handler := &proxyService{}
@@ -58,8 +47,9 @@ var _ = Describe("Service", func() {
 			// When
 			result := handler.authorized(request)
 
-			// Then
-			Expect(result).To(Equal(false), "expected false when all our required headers are not present")
+			Convey("Then #authorized should return false", func() {
+				So(result, ShouldBeFalse)
+			})
 		})
 	})
-})
+}

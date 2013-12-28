@@ -2,8 +2,6 @@ package proxy
 
 import (
 	"errors"
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
 	"github.com/savaki/fronttier/mock"
 	. "github.com/smartystreets/goconvey/convey"
 	"net/http"
@@ -86,18 +84,16 @@ func TestBuilder(t *testing.T) {
 			// the response writer should not be written to e.g. response writer is nil
 		})
 	})
-}
 
-var _ = Describe("Builder", func() {
-	Context("#NotAuthorizedHandler", func() {
-		It("should invoke the default not authorized handler when required headers not provided", func() {
+	Convey("#NotAuthorizedHandler", t, func() {
+		Convey("should invoke the default not authorized handler when required headers not provided", func() {
 			notAuthorized := &defaultNotAuthorizedHandler{}
 			service, err := Builder().
 				Url("http://www.cnn.com").
 				RequiredHeaders("X-Foo").
 				NotAuthorizedHandler(notAuthorized).
 				Build()
-			Expect(err).To(BeNil(), "expected no errors")
+			So(err, ShouldBeNil)
 
 			// When
 			req, _ := http.NewRequest("GET", "http://www.cnn.com", nil)
@@ -105,34 +101,35 @@ var _ = Describe("Builder", func() {
 			service.ServeHTTP(w, req)
 
 			// Then
-			Expect(w.StatusCode).To(Equal(401), "expected a 401 status code")
+			So(w.StatusCode, ShouldEqual, 401)
 		})
 	})
 
-	Context("#RequiredHeaders", func() {
-		It("should optionally allow authentication to be required by passing a known header", func() {
+	Convey("#RequiredHeaders", t, func() {
+		Convey("should optionally allow authentication to be required by passing a known header", func() {
 			service, err := Builder().Url("http://www.cnn.com/").RequiredHeaders("X-Foo").Build()
 
 			// Then
-			Expect(err).To(BeNil(), "expected no errors")
-			Expect(service).ToNot(BeNil(), "expected a service back")
+			So(err, ShouldBeNil)
+			So(service, ShouldNotBeNil)
 		})
 
-		It("should assign required headers in the service", func() {
+		Convey("should assign required headers in the service", func() {
 			handler, err := Builder().Url("http://www.cnn.com/").RequiredHeaders("X-Foo").Build()
 
 			// Then
 			s := handler.(*proxyService)
-			Expect(err).To(BeNil(), "expected no errors")
-			Expect(s.requiredHeaders).To(Equal([]string{"X-Foo"}), "expected our required header to have been set")
+			So(err, ShouldBeNil)
+			So(len(s.requiredHeaders), ShouldEqual, 1)
+			So(s.requiredHeaders, ShouldContain, "X-Foo")
 		})
 
-		It("should assign a default NotAuthorizedHandler if one wasn't already defined", func() {
+		Convey("should assign a default NotAuthorizedHandler if one wasn't already defined", func() {
 			service, err := Builder().
 				Url("http://www.cnn.com").
 				RequiredHeaders("X-Foo").
 				Build()
-			Expect(err).To(BeNil(), "expected no errors")
+			So(err, ShouldBeNil)
 
 			// When
 			req, _ := http.NewRequest("GET", "http://www.cnn.com", nil)
@@ -140,7 +137,7 @@ var _ = Describe("Builder", func() {
 			service.ServeHTTP(w, req)
 
 			// Then
-			Expect(w.StatusCode).To(Equal(401), "expected a 401 status code")
+			So(w.StatusCode, ShouldEqual, 401)
 		})
 	})
-})
+}
