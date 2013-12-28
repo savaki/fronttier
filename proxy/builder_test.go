@@ -12,13 +12,7 @@ import (
 
 func TestBuilder(t *testing.T) {
 	Convey("#AddFilter", t, func() {
-
-	})
-}
-
-var _ = Describe("Builder", func() {
-	Context("#AddFilter", func() {
-		It("add filters to the handler", func() {
+		Convey("add filters to the handler", func() {
 			var filterInvoked *bool = new(bool) // check to see filter was invoked
 			*filterInvoked = false
 
@@ -29,34 +23,34 @@ var _ = Describe("Builder", func() {
 			}
 
 			handler, err := Builder().Url("http://www.cnn.com").AddFilter(filter).RoundTripper(tripper).Build()
-			Expect(err).To(BeNil(), "expected to construct a handler")
+			So(err, ShouldBeNil)
 
 			// When
 			request, _ := http.NewRequest("GET", "http://www.google.com", nil)
 			handler.ServeHTTP(nil, request)
 
 			// Then
-			Expect(*filterInvoked).To(BeTrue(), "expected the filter to have been invoked")
-			Expect(tripper.Request).To(BeNil(), "expected request to not have made it to the RoundTripper")
+			So(*filterInvoked, ShouldBeTrue)
+			So(tripper.Request, ShouldBeNil)
 		})
 	})
 
-	Context("#Build", func() {
-		It("returns error if Url not defined", func() {
+	Convey("#Build", t, func() {
+		Convey("returns error if Url not defined", func() {
 			_, err := Builder().Build()
 
 			// Then
-			Expect(err).ToNot(BeNil(), "expected an error to be thrown since Url wasn't defined")
+			So(err, ShouldNotBeNil)
 		})
 
-		It("return service if Url is defined", func() {
+		Convey("return service if Url is defined", func() {
 			service, err := Builder().Url("http://www.google.com").Build()
 
-			Expect(err).To(BeNil(), "expected no errors")
-			Expect(service).ToNot(BeNil(), "expected a service to be defined")
+			So(err, ShouldBeNil)
+			So(service, ShouldNotBeNil)
 		})
 
-		It("sets the Host header for requests that are passed through", func() {
+		Convey("sets the Host header for requests that are passed through", func() {
 			tripper := mock.RoundTripper{}
 			service, _ := Builder().Url("http://www.google.com").RoundTripper(&tripper).Build()
 			request, _ := http.NewRequest("GET", "http://www.yahoo.com/sample", nil)
@@ -65,18 +59,18 @@ var _ = Describe("Builder", func() {
 			service.ServeHTTP(nil, request)
 
 			// Then
-			Expect(tripper.Request.URL.Host).To(Equal("www.google.com"), "expected to connect to proxied host")
-			Expect(tripper.Request.Header.Get("Host")).To(Equal("www.google.com"), "expected host header to be set")
+			So(tripper.Request.URL.Host, ShouldEqual, "www.google.com")
+			So(tripper.Request.Header.Get("Host"), ShouldEqual, "www.google.com")
 		})
 
-		It("should report errors thrown earlier in the process", func() {
+		Convey("should report errors thrown earlier in the process", func() {
 			_, err := Builder().Url(":::this is junk").Build()
 
 			// Then
-			Expect(err).ToNot(BeNil(), "expected an error to be returned")
+			So(err, ShouldNotBeNil)
 		})
 
-		It("the created Handler should return prematurely if the RoundTripper fails", func() {
+		Convey("the created Handler should return prematurely if the RoundTripper fails", func() {
 			tripper := &mock.RoundTripper{
 				Request:  nil,
 				Response: nil,
@@ -89,10 +83,12 @@ var _ = Describe("Builder", func() {
 			service.ServeHTTP(nil, request)
 
 			// Then
-			// the response writer should not be written to
+			// the response writer should not be written to e.g. response writer is nil
 		})
 	})
+}
 
+var _ = Describe("Builder", func() {
 	Context("#NotAuthorizedHandler", func() {
 		It("should invoke the default not authorized handler when required headers not provided", func() {
 			notAuthorized := &defaultNotAuthorizedHandler{}
