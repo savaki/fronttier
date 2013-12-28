@@ -2,14 +2,14 @@ package mock
 
 import (
 	"errors"
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
+	. "github.com/smartystreets/goconvey/convey"
 	"net/http"
+	"testing"
 )
 
-var _ = Describe("RoundTripper", func() {
-	Context("#RoundTrip", func() {
-		It("should capture the request and return the response", func() {
+func TestRoundTripper(t *testing.T) {
+	Convey("#RoundTrip", t, func() {
+		Convey("should capture the request and return the response", func() {
 			request, _ := http.NewRequest("GET", "http://www.sample.com/abc", nil)
 			tripper := &RoundTripper{
 				Response: &http.Response{StatusCode: 201},
@@ -20,9 +20,9 @@ var _ = Describe("RoundTripper", func() {
 			response, err := tripper.RoundTrip(request)
 
 			// Then
-			Expect(tripper.Request).To(Equal(request), "expected request to be captured")
-			Expect(response).To(Equal(tripper.Response), "expected response to be returned")
-			Expect(err).To(Equal(tripper.Err), "expected err to be returned")
+			So(tripper.Request, ShouldEqual, request)
+			So(response, ShouldEqual, tripper.Response)
+			So(err, ShouldEqual, tripper.Err)
 		})
 	})
-})
+}

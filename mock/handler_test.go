@@ -2,14 +2,14 @@ package mock
 
 import (
 	"bytes"
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
+	. "github.com/smartystreets/goconvey/convey"
 	"net/http"
+	"testing"
 )
 
-var _ = Describe("Handler", func() {
-	Context("#ServeHTTP", func() {
-		It("captures the request path", func() {
+func TestHandler(t *testing.T) {
+	Convey("#ServeHTTP", t, func() {
+		Convey("captures the request path", func() {
 			request, _ := http.NewRequest("GET", "http://www.google.com/mail/", nil)
 
 			// When
@@ -17,10 +17,10 @@ var _ = Describe("Handler", func() {
 			handler.ServeHTTP(nil, request)
 
 			// Then
-			Expect(handler.InPath).To(Equal("/mail/"), "expected path to be captured")
+			So(handler.InPath, ShouldEqual, "/mail/")
 		})
 
-		It("captures the request content", func() {
+		Convey("captures the request content", func() {
 			content := "hello world"
 			request, _ := http.NewRequest("GET", "http://www.google.com/mail/", bytes.NewReader([]byte(content)))
 
@@ -29,10 +29,10 @@ var _ = Describe("Handler", func() {
 			handler.ServeHTTP(nil, request)
 
 			// Then
-			Expect(string(handler.InContent)).To(Equal(content), "expected to capture request content")
+			So(string(handler.InContent), ShouldEqual, content)
 		})
 
-		It("expected headers and values to be saved by handler", func() {
+		Convey("expected headers and values to be saved by handler", func() {
 			request, _ := http.NewRequest("GET", "http://www.google.com/mail/", nil)
 			request.Header.Set("hello", "world")
 
@@ -41,11 +41,12 @@ var _ = Describe("Handler", func() {
 			handler.ServeHTTP(nil, request)
 
 			// Then
-			Expect(handler.InMethod).To(Equal("GET"), "expected method to be captured")
-			Expect(handler.InHeader["Hello"]).To(Equal([]string{"world"}), "expected headers to be captured")
+			So(handler.InMethod, ShouldEqual, "GET")
+			So(len(handler.InHeader["Hello"]), ShouldEqual, 1)
+			So(handler.InHeader["Hello"], ShouldContain, "world")
 		})
 
-		It("write the specified status code", func() {
+		Convey("write the specified status code", func() {
 			handler := &Handler{OutStatusCode: 201}
 			w := &ResponseWriter{}
 
@@ -53,10 +54,10 @@ var _ = Describe("Handler", func() {
 			handler.ServeHTTP(w, nil)
 
 			// Then
-			Expect(w.StatusCode).To(Equal(handler.OutStatusCode), "expected status code to be returned")
+			So(w.StatusCode, ShouldEqual, handler.OutStatusCode)
 		})
 
-		It("defaults status code to 200", func() {
+		Convey("defaults status code to 200", func() {
 			handler := &Handler{}
 			w := &ResponseWriter{}
 
@@ -64,10 +65,10 @@ var _ = Describe("Handler", func() {
 			handler.ServeHTTP(w, nil)
 
 			// Then
-			Expect(w.StatusCode).To(Equal(200), "expected 200 status code as default")
+			So(w.StatusCode, ShouldEqual, 200)
 		})
 
-		It("returns the out headers", func() {
+		Convey("returns the out headers", func() {
 			header := "X-Hello"
 			handler := &Handler{OutHeader: map[string]string{header: "world"}}
 			w := &ResponseWriter{}
@@ -76,19 +77,19 @@ var _ = Describe("Handler", func() {
 			handler.ServeHTTP(w, nil)
 
 			// Then
-			Expect(w.Header().Get(header)).To(Equal(handler.OutHeader[header]), "expected the out header to have been set")
+			So(w.Header().Get(header), ShouldEqual, handler.OutHeader[header])
 		})
 
-		It("returns the out content", func() {
-			content := []byte("hello world")
-			handler := &Handler{OutContent: content}
+		Convey("returns the out content", func() {
+			content := "hello world"
+			handler := &Handler{OutContent: []byte(content)}
 			w := &ResponseWriter{}
 
 			// When
 			handler.ServeHTTP(w, nil)
 
 			// Then
-			Expect(w.Content).To(Equal(handler.OutContent), "expected the out content to have been returned")
+			So(string(w.Content), ShouldEqual, content)
 		})
 	})
-})
+}
