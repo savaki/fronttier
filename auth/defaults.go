@@ -2,7 +2,7 @@ package auth
 
 import (
 	"github.com/nu7hatch/gouuid"
-	"github.com/savaki/frontier/sessions"
+	"github.com/savaki/fronttier/sessions"
 )
 
 var defaultIdFactory = func() string {

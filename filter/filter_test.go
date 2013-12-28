@@ -3,7 +3,7 @@ package filter
 import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"github.com/savaki/frontier/mock"
+	"github.com/savaki/fronttier/mock"
 	"net/http"
 )
 

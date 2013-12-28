@@ -2,7 +2,7 @@ package frontier
 
 import (
 	"errors"
-	"github.com/savaki/frontier/filter"
+	"github.com/savaki/fronttier/filter"
 	"net/http"
 )
 

@@ -2,8 +2,8 @@ package frontier
 
 import (
 	"errors"
-	"github.com/savaki/frontier/auth"
-	"github.com/savaki/frontier/filter"
+	"github.com/savaki/fronttier/auth"
+	"github.com/savaki/fronttier/filter"
 )
 
 type BuilderConfig struct {

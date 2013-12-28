@@ -2,7 +2,7 @@ package auth
 
 import (
 	"errors"
-	"github.com/savaki/frontier/sessions"
+	"github.com/savaki/fronttier/sessions"
 	"net/http"
 )
 

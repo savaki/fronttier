@@ -2,7 +2,7 @@ package frontier
 
 import (
 	"errors"
-	"github.com/savaki/frontier/mock"
+	"github.com/savaki/fronttier/mock"
 	. "github.com/smartystreets/goconvey/convey"
 	"net/http"
 	"testing"

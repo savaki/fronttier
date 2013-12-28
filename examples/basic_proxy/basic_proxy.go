@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/savaki/frontier"
-	"github.com/savaki/frontier/proxy"
+	"github.com/savaki/fronttier"
+	"github.com/savaki/fronttier/proxy"
 )
 
 func main() {
