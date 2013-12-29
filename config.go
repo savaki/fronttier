@@ -30,15 +30,15 @@ func Load(reader io.Reader) *BuilderConfig {
 		return builder
 	}
 
-	if cfg.Routes != nil {
-		for _, route := range cfg.Routes {
-			handler, err := proxy.Builder().Url(route.Proxy).Build()
-			if err != nil {
-				builder.err = err
-				return builder
-			}
-			builder.Paths(route.Paths...).Handler(handler)
-		}
+	err = cfg.Validate()
+	if err != nil {
+		builder.err = err
+		return builder
+	}
+
+	for _, route := range cfg.Routes {
+		handler, _ := proxy.Builder().Url(route.Proxy).Build()
+		builder.Paths(route.Paths...).Handler(handler)
 	}
 
 	return builder

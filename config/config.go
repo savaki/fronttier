@@ -8,22 +8,37 @@ type Config struct {
 	Routes []RouteConfig `json:"routes"`
 }
 
-type RouteConfig struct {
-	Paths []string `json:"paths"`
-	Proxy string   `json:"proxy"`
-}
-
 func (self Config) Validate() error {
 	err := &Errors{}
 	if self.Routes == nil || len(self.Routes) == 0 {
 		gripe := "at least one route must be specified"
 		err.Add("routes", gripe)
+
+	} else {
+		for _, route := range self.Routes {
+			route.validate(err)
+		}
 	}
 
 	if len(err.Messages) > 0 {
 		return err
 	}
 	return nil
+}
+
+type RouteConfig struct {
+	Paths []string `json:"paths"`
+	Proxy string   `json:"proxy"`
+}
+
+func (self RouteConfig) validate(err *Errors) {
+	if self.Proxy == "" {
+		err.Add("routes", "invalid route - no proxy specified")
+	}
+
+	if self.Paths == nil || len(self.Paths) == 0 {
+		err.Add("routes", "invalid route - at least one path must be specified")
+	}
 }
 
 type Errors struct {

@@ -44,6 +44,34 @@ func TestConfig(t *testing.T) {
 			})
 		})
 
+		Convey("Given a config that has a route with no proxy", func() {
+			data := []byte(`{"routes":[
+				{
+					"paths": ["/"]
+				}
+			]}`)
+			json.Unmarshal(data, cfg)
+			err := cfg.Validate()
+
+			Convey("Then I expect #Validate to return an error", func() {
+				So(err, ShouldNotBeNil)
+			})
+		})
+
+		Convey("Given a config that has a route with no paths", func() {
+			data := []byte(`{"routes":[
+				{
+					"proxy": "http://www.google.com"
+				}
+			]}`)
+			json.Unmarshal(data, cfg)
+			err := cfg.Validate()
+
+			Convey("Then I expect #Validate to return an error", func() {
+				So(err, ShouldNotBeNil)
+			})
+		})
+
 		Convey("Given a valid config", func() {
 			data := []byte(`{"routes":[
 				{
