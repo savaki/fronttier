@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 	"net/url"
+	"strings"
 )
 
 // BuilderConfig implements the BuilderConfig pattern to create new proxy instances.
@@ -43,7 +44,12 @@ func Builder() BuilderConfig {
 // fell shot.  Currently, the path is unused.
 func (self BuilderConfig) Url(rawurl string) BuilderConfig {
 	if self.err == nil {
-		self.url, self.err = url.Parse(rawurl)
+		if strings.TrimSpace(rawurl) == "" {
+			self.err = errors.New("ERROR - Url invoke with an empty string")
+
+		} else {
+			self.url, self.err = url.Parse(rawurl)
+		}
 	}
 	return self
 }

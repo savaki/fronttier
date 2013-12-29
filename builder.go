@@ -1,4 +1,4 @@
-package frontier
+package fronttier
 
 import (
 	"errors"
@@ -16,7 +16,7 @@ func Builder() *BuilderConfig {
 	return &BuilderConfig{}
 }
 
-func (self *BuilderConfig) Path(paths ...string) *RouteConfig {
+func (self *BuilderConfig) Paths(paths ...string) *RouteConfig {
 	routeConfig := newRouteBuilder()
 
 	for _, path := range paths {

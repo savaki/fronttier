@@ -1,4 +1,4 @@
-package frontier
+package fronttier
 
 import (
 	"net/http"

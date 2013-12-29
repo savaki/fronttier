@@ -1,4 +1,4 @@
-package frontier
+package fronttier
 
 import (
 	"errors"
@@ -42,7 +42,7 @@ func TestBuilder(t *testing.T) {
 			header := "X-Header"
 			authConfig = builder.AuthConfig()
 			handler = &mock.Handler{}
-			builder.Path("/a").Handler(handler)
+			builder.Paths("/a").Handler(handler)
 
 			Convey("Then I expect an error if I have no reserved headers", func() {
 				_, err := builder.Build()
@@ -68,8 +68,8 @@ func TestBuilder(t *testing.T) {
 			})
 		})
 
-		Convey("When I call #Path", func() {
-			routeConfig = builder.Path("/blah/")
+		Convey("When I call #Paths", func() {
+			routeConfig = builder.Paths("/blah/")
 
 			Convey("And I specify the route is a #SessionFactory", func() {
 				header := "X-Uid"

@@ -140,4 +140,14 @@ func TestBuilder(t *testing.T) {
 			So(w.StatusCode, ShouldEqual, 401)
 		})
 	})
+
+	Convey("#Url", t, func() {
+		Convey("When I attempt to parse an empty URL", func() {
+			_, err := Builder().Url("").Build()
+
+			Convey("Then I expect an error to be thrown", func() {
+				So(err, ShouldNotBeNil)
+			})
+		})
+	})
 }
