@@ -47,7 +47,7 @@ func (self BuilderConfig) Url(rawurl string) BuilderConfig {
 	return self
 }
 
-func (self BuilderConfig) AddFilter(filter Filter) BuilderConfig {
+func (self BuilderConfig) Filter(filter Filter) BuilderConfig {
 	if self.err == nil {
 		self.filters = append(self.filters, filter)
 	}

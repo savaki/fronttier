@@ -20,7 +20,7 @@ func TestBuilder(t *testing.T) {
 				return nil, errors.New("blah")
 			}
 
-			handler, err := Builder().Url("http://www.cnn.com").AddFilter(filter).RoundTripper(tripper).Build()
+			handler, err := Builder().Url("http://www.cnn.com").Filter(filter).RoundTripper(tripper).Build()
 			So(err, ShouldBeNil)
 
 			// When
