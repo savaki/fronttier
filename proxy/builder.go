@@ -13,15 +13,8 @@ type BuilderConfig struct {
 	// what's the target url
 	url *url.URL
 
-	// An optional list of headers to require.  If ALL the required headers
-	// are not present, then the notAuthorizedHandler gets invoked
-	requiredHeaders []string
-
 	// Our underlying network connection.
 	roundTripper http.RoundTripper
-
-	// what's the target url
-	notAuthorizedHandler http.Handler
 
 	// An optional list of filters to apply prior to invoking our proxy
 	// service.
@@ -61,20 +54,6 @@ func (self BuilderConfig) AddFilter(filter Filter) BuilderConfig {
 	return self
 }
 
-func (self BuilderConfig) RequiredHeaders(headers ...string) BuilderConfig {
-	if self.err == nil {
-		self.requiredHeaders = []string(headers)
-	}
-	return self
-}
-
-func (self BuilderConfig) NotAuthorizedHandler(notAuthorizedHandler http.Handler) BuilderConfig {
-	if self.err == nil {
-		self.notAuthorizedHandler = notAuthorizedHandler
-	}
-	return self
-}
-
 func (self BuilderConfig) RoundTripper(roundTripper http.RoundTripper) BuilderConfig {
 	if self.err == nil {
 		self.roundTripper = roundTripper
@@ -96,17 +75,10 @@ func (self BuilderConfig) Build() (http.Handler, error) {
 		tripper = http.DefaultTransport
 	}
 
-	notAuthorized := self.notAuthorizedHandler
-	if notAuthorized == nil {
-		notAuthorized = &defaultNotAuthorizedHandler{}
-	}
-
 	handle := flatten(self.filters, tripper.RoundTrip)
 
 	return &proxyService{
-		target:          self.url,
-		requiredHeaders: self.requiredHeaders,
-		handle:          handle,
-		notAuthorized:   notAuthorized,
+		target: self.url,
+		handle: handle,
 	}, nil
 }

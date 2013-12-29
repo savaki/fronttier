@@ -18,7 +18,7 @@ func TestUtil(t *testing.T) {
 			request.Header.Set("hello", "world")
 
 			// When
-			outreq := rewrite(target, nil, request)
+			outreq := rewrite(target, request)
 
 			// Then
 			So(outreq.Header.Get("hello"), ShouldEqual, "world")
@@ -29,7 +29,7 @@ func TestUtil(t *testing.T) {
 			request, _ := http.NewRequest("GET", "http://www.sample.com/abc", nil)
 
 			// When
-			outreq := rewrite(target, nil, request)
+			outreq := rewrite(target, request)
 
 			// Then
 			So(outreq.URL.Path, ShouldEqual, "/prefix/abc")

@@ -6,7 +6,7 @@ import (
 	"net/url"
 )
 
-func rewrite(target *url.URL, ignoredHeaders []string, req *http.Request) *http.Request {
+func rewrite(target *url.URL, req *http.Request) *http.Request {
 	outreq := new(http.Request)
 
 	// protocol

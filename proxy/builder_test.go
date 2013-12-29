@@ -85,62 +85,6 @@ func TestBuilder(t *testing.T) {
 		})
 	})
 
-	Convey("#NotAuthorizedHandler", t, func() {
-		Convey("should invoke the default not authorized handler when required headers not provided", func() {
-			notAuthorized := &defaultNotAuthorizedHandler{}
-			service, err := Builder().
-				Url("http://www.cnn.com").
-				RequiredHeaders("X-Foo").
-				NotAuthorizedHandler(notAuthorized).
-				Build()
-			So(err, ShouldBeNil)
-
-			// When
-			req, _ := http.NewRequest("GET", "http://www.cnn.com", nil)
-			w := &mock.ResponseWriter{}
-			service.ServeHTTP(w, req)
-
-			// Then
-			So(w.StatusCode, ShouldEqual, 401)
-		})
-	})
-
-	Convey("#RequiredHeaders", t, func() {
-		Convey("should optionally allow authentication to be required by passing a known header", func() {
-			service, err := Builder().Url("http://www.cnn.com/").RequiredHeaders("X-Foo").Build()
-
-			// Then
-			So(err, ShouldBeNil)
-			So(service, ShouldNotBeNil)
-		})
-
-		Convey("should assign required headers in the service", func() {
-			handler, err := Builder().Url("http://www.cnn.com/").RequiredHeaders("X-Foo").Build()
-
-			// Then
-			s := handler.(*proxyService)
-			So(err, ShouldBeNil)
-			So(len(s.requiredHeaders), ShouldEqual, 1)
-			So(s.requiredHeaders, ShouldContain, "X-Foo")
-		})
-
-		Convey("should assign a default NotAuthorizedHandler if one wasn't already defined", func() {
-			service, err := Builder().
-				Url("http://www.cnn.com").
-				RequiredHeaders("X-Foo").
-				Build()
-			So(err, ShouldBeNil)
-
-			// When
-			req, _ := http.NewRequest("GET", "http://www.cnn.com", nil)
-			w := &mock.ResponseWriter{}
-			service.ServeHTTP(w, req)
-
-			// Then
-			So(w.StatusCode, ShouldEqual, 401)
-		})
-	})
-
 	Convey("#Url", t, func() {
 		Convey("When I attempt to parse an empty URL", func() {
 			_, err := Builder().Url("").Build()

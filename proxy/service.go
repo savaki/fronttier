@@ -7,20 +7,12 @@ import (
 )
 
 type proxyService struct {
-	requiredHeaders []string
-	ignoredHeaders  []string
-	target          *url.URL
-	handle          func(req *http.Request) (*http.Response, error)
-	notAuthorized   http.Handler
+	target *url.URL
+	handle func(req *http.Request) (*http.Response, error)
 }
 
 func (self *proxyService) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-	outreq := rewrite(self.target, self.ignoredHeaders, req)
-
-	if !self.authorized(req) {
-		self.notAuthorized.ServeHTTP(w, req)
-		return
-	}
+	outreq := rewrite(self.target, req)
 
 	response, err := self.handle(outreq)
 	if err != nil {
@@ -29,18 +21,4 @@ func (self *proxyService) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 
 	transfer(w, response)
-}
-
-func (self *proxyService) authorized(req *http.Request) bool {
-	if self.requiredHeaders == nil {
-		return true
-	}
-
-	for _, header := range self.requiredHeaders {
-		if req.Header.Get(header) == "" {
-			return false
-		}
-	}
-
-	return true
 }
