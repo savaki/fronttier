@@ -1,0 +1,12 @@
+{
+	"routes": [
+		{
+			"paths": ["/fantasy/"],
+			"proxy": "http://sports.yahoo.com"
+		},
+		{
+			"paths": ["/"],
+			"proxy": "http://www.cnn.com"
+		}
+	]
+}
