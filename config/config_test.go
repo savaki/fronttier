@@ -86,5 +86,25 @@ func TestConfig(t *testing.T) {
 				So(err, ShouldBeNil)
 			})
 		})
+
+		Convey("Given a config with a partially completed auth", func() {
+			data := []byte(`{
+				"routes":[
+					{
+						"paths": ["/"],
+						"proxy": "http://www.google.com"
+					}
+				],
+				"auth": {
+				}
+			}`)
+
+			json.Unmarshal(data, cfg)
+			err := cfg.Validate()
+
+			Convey("Then I expect #Validate to return an err", func() {
+				So(err, ShouldNotBeNil)
+			})
+		})
 	})
 }
