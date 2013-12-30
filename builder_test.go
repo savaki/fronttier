@@ -77,7 +77,7 @@ func TestBuilder(t *testing.T) {
 				handler = &mock.Handler{OutHeader: map[string]string{header: value}}
 				routeConfig.SessionFactory().Handler(handler)
 
-				Convey("Then I an error unless the AuthConfig is fulled specified", func() {
+				Convey("Then I expect an error unless the AuthConfig is fulled specified", func() {
 					_, err := builder.Build()
 
 					So(err, ShouldNotBeNil)
