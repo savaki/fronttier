@@ -41,14 +41,14 @@ func TestBuilder(t *testing.T) {
 			So(err, ShouldNotBeNil)
 		})
 
-		Convey("return service if Url is defined", func() {
+		Convey("return a valid service instance if Url is defined", func() {
 			service, err := Builder().Url("http://www.google.com").Build()
 
 			So(err, ShouldBeNil)
 			So(service, ShouldNotBeNil)
 		})
 
-		Convey("sets the Host header for requests that are passed through", func() {
+		Convey("sets the 'Host' header for requests that are passed through", func() {
 			tripper := mock.RoundTripper{}
 			service, _ := Builder().Url("http://www.google.com").RoundTripper(&tripper).Build()
 			request, _ := http.NewRequest("GET", "http://www.yahoo.com/sample", nil)

@@ -2,6 +2,7 @@ package proxy
 
 import (
 	"github.com/savaki/fronttier/mock"
+	"net"
 	"net/http"
 	"net/url"
 )
@@ -60,6 +61,14 @@ Loop:
 		}
 	}
 	outreq.Header.Set("Host", target.Host)
+
+	// x-forwarded-for
+	if host, _, err := net.SplitHostPort(req.RemoteAddr); err == nil {
+		if prior := outreq.Header.Get("X-Forwarded-For"); prior != "" {
+			host = prior + ", " + host
+		}
+		outreq.Header.Set("X-Forwarded-For", host)
+	}
 
 	// content
 	outreq.Body = req.Body
