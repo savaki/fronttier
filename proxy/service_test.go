@@ -1,7 +1,6 @@
 package proxy
 
 import (
-	"fmt"
 	"github.com/savaki/fronttier/mock"
 	. "github.com/smartystreets/goconvey/convey"
 	"net/http"
@@ -24,7 +23,6 @@ func TestService(t *testing.T) {
 
 		Convey("When a request is proxied WITH OUT an X-Forwarded-For header", func() {
 			handler.ServeHTTP(nil, req)
-			fmt.Printf("%#v\n", roundTripper.Request.Header)
 			Convey("Then I expect the X-Forwarded-For header to be set", func() {
 				So(roundTripper.Request.Header.Get("X-Forwarded-For"), ShouldNotEqual, "")
 			})
