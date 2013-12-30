@@ -6,6 +6,19 @@ import (
 	"net/url"
 )
 
+// Hop-by-hop headers. These are removed when sent to the backend.
+// http://www.w3.org/Protocols/rfc2616/rfc2616-sec13.html
+var hopHeaders = []string{
+	"Connection",
+	"Keep-Alive",
+	"Proxy-Authenticate",
+	"Proxy-Authorization",
+	"Te", // canonicalized version of "TE"
+	"Trailers",
+	"Transfer-Encoding",
+	"Upgrade",
+}
+
 func rewrite(target *url.URL, req *http.Request) *http.Request {
 	outreq := new(http.Request)
 
@@ -34,7 +47,14 @@ func rewrite(target *url.URL, req *http.Request) *http.Request {
 	// http headers
 	outreq.Header = make(http.Header)
 
+Loop:
 	for key, values := range req.Header {
+		for _, hopHeader := range hopHeaders {
+			if key == hopHeader {
+				continue Loop
+			}
+		}
+
 		for _, value := range values {
 			outreq.Header.Add(key, value)
 		}

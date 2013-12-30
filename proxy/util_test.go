@@ -34,6 +34,19 @@ func TestUtil(t *testing.T) {
 			// Then
 			So(outreq.URL.Path, ShouldEqual, "/prefix/abc")
 		})
+
+		Convey("should remove hop headers as per http://www.w3.org/Protocols/rfc2616/rfc2616-sec13.html", func() {
+			req, _ := http.NewRequest("GET", "http://www.google.com", nil)
+			for _, header := range hopHeaders {
+				req.Header.Set(header, "abc")
+			}
+
+			target, _ := url.Parse("http://www.yahoo.com")
+			result := rewrite(target, req)
+
+			So(len(result.Header), ShouldEqual, 1)
+			So(result.Header["Host"][0], ShouldEqual, "www.yahoo.com")
+		})
 	})
 
 	Convey("#transfer", t, func() {
