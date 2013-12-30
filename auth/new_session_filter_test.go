@@ -82,7 +82,7 @@ func TestNewSessionFilter(t *testing.T) {
 
 				filter.Filter(w, req, handler)
 
-				So(string(w.Content), ShouldEqual, content)
+				So(string(w.Bytes()), ShouldEqual, content)
 			})
 		})
 	})

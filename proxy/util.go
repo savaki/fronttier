@@ -1,7 +1,7 @@
 package proxy
 
 import (
-	"io"
+	"github.com/savaki/fronttier/mock"
 	"net/http"
 	"net/url"
 )
@@ -60,5 +60,5 @@ func transfer(target http.ResponseWriter, source *http.Response) {
 	}
 
 	target.WriteHeader(source.StatusCode)
-	io.Copy(target, source.Body)
+	mock.WriteTo(target, source.Body)
 }

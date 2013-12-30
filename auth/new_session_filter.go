@@ -37,7 +37,5 @@ func (self *NewSessionFilter) Filter(w http.ResponseWriter, req *http.Request, t
 	self.createSessionWhenRequired(tempWriter, w)
 
 	w.WriteHeader(tempWriter.StatusCode)
-	if tempWriter.Content != nil {
-		w.Write(tempWriter.Content)
-	}
+	tempWriter.WriteTo(w)
 }

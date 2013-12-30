@@ -93,7 +93,7 @@ func TestAuthFilter(t *testing.T) {
 				filter, _ = builder.BuildAuthFilter()
 				filter.Filter(w, request, handler)
 
-				So(string(w.Content), ShouldEqual, string(handler.OutContent))
+				So(w.String(), ShouldEqual, string(handler.OutContent))
 			})
 		})
 	})

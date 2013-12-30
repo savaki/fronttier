@@ -57,7 +57,5 @@ func (self *AuthFilter) Filter(w http.ResponseWriter, req *http.Request, target 
 	// and selectively transfer it to the original request
 	self.transferHeaders(cookie, tempWriter, w)
 	w.WriteHeader(tempWriter.StatusCode)
-	if tempWriter.Content != nil {
-		w.Write(tempWriter.Content)
-	}
+	tempWriter.WriteTo(w)
 }
