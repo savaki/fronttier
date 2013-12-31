@@ -9,6 +9,9 @@ import (
 	"io/ioutil"
 )
 
+// Load configuration from the provided json file.  Any errors
+// that occur during the load can be fetched when you invoke
+// #Build on the returned *BuilderConfig
 func LoadFile(filename string) *BuilderConfig {
 	data, err := ioutil.ReadFile(filename)
 	if err != nil {
@@ -20,6 +23,9 @@ func LoadFile(filename string) *BuilderConfig {
 	return Load(bytes.NewReader(data))
 }
 
+// Load a json configuration from the provided reader.  As with
+// #LoadFile, Load will return any errors when you invoke #Build
+// on the returned *BuilderConfig
 func Load(reader io.Reader) *BuilderConfig {
 	builder := Builder()
 
