@@ -6,37 +6,51 @@ import (
 	"github.com/savaki/fronttier/filter"
 )
 
+// BuilderConfig collects all the settings used to construct
+// a *Fronttier server.
+// To instantiate a new BuilderConfig, call #Builder
+// To convert this config into a *Fronttier instance, call #Builder()
 type BuilderConfig struct {
 	routeConfigs []*RouteConfig
 	authConfig   *auth.BuilderConfig
 	err          error
 }
 
+// The factory method to instantiate new *BuilderConfig.  Start
+// here if you want to create a new instance of *Fronttier
 func Builder() *BuilderConfig {
 	return &BuilderConfig{}
 }
 
+// The list of path prefixes to match again.
+// Note: / will match everything
 func (self *BuilderConfig) Paths(paths ...string) *RouteConfig {
 	routeConfig := newRouteBuilder()
 
+	var matchers []Matcher
 	for _, path := range paths {
-		routeConfig.Matcher(&PrefixMatcher{path})
+		matchers = append(&PrefixMatcher{path})
 	}
+	routeConfig.Matcher(Or(matchers...))
 
 	self.routeConfigs = append(self.routeConfigs, routeConfig)
 	return routeConfig
 }
 
+// Calling AuthConfig indicates that Fronttier should handle
+// authentication.  For more information see the auth package
 func (self *BuilderConfig) AuthConfig() *auth.BuilderConfig {
 	self.authConfig = auth.Builder()
 	return self.authConfig
 }
 
+// Instantiate our new Fronttier object
 func (self *BuilderConfig) Build() (*Frontier, error) {
 	if self.err != nil {
 		return nil, self.err
 	}
 
+	// build the authentication filters if #AuthConfig was called
 	var authFilter filter.HandlerFilter = nil
 	var newSessionFilter filter.HandlerFilter = nil
 	var err error
@@ -49,6 +63,7 @@ func (self *BuilderConfig) Build() (*Frontier, error) {
 		newSessionFilter, _ = self.authConfig.BuildNewSessionFilter()
 	}
 
+	// materialize our routes
 	var routes []*Route
 	for _, routeConfig := range self.routeConfigs {
 		if authFilter != nil {
@@ -70,6 +85,6 @@ func (self *BuilderConfig) Build() (*Frontier, error) {
 		routes = append(routes, route)
 	}
 
-	server := &Frontier{routes: routes}
-	return server, nil
+	// and lastly, construct our server
+	return &Frontier{routes: routes}, nil
 }

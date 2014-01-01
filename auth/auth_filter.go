@@ -6,6 +6,7 @@ import (
 	"net/http"
 )
 
+// AuthFilter provides authentication for the services that it's filtering.
 type AuthFilter struct {
 	idFactory       func() string
 	reservedHeaders []string
