@@ -26,6 +26,11 @@ type OrMatcher struct {
 	matchers []Matcher
 }
 
+func (self *OrMatcher) Add(matcher Matcher) *OrMatcher {
+	self.matchers = append(self.matchers, matcher)
+	return self
+}
+
 // match if at least one of the matchers matches
 func (self *OrMatcher) Matches(req *http.Request) bool {
 	for _, matcher := range self.matchers {
