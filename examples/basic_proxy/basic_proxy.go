@@ -14,9 +14,9 @@ func main() {
 		Url("http://www.cnn.com").
 		Build()
 
-	builder := frontier.Builder()
-	builder.Path("/fantasy/").Handler(yahoo)
-	builder.Path("/").Handler(cnn)
+	builder := fronttier.Builder()
+	builder.Paths("/fantasy/").Handler(yahoo)
+	builder.Paths("/").Handler(cnn)
 	server, _ := builder.Build()
 
 	server.ListenAndServe(":8080")
