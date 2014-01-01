@@ -29,7 +29,7 @@ func (self *BuilderConfig) Paths(paths ...string) *RouteConfig {
 
 	var matchers []Matcher
 	for _, path := range paths {
-		matchers = append(&PrefixMatcher{path})
+		matchers = append(matchers, &PrefixMatcher{path})
 	}
 	routeConfig.Matcher(Or(matchers...))
 
