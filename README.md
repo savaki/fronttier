@@ -1,7 +1,8 @@
 frontier
 ========
 
-[![GoDoc](https://godoc.org/github.com/savaki/fronttier?status.png)](https://godoc.org/github.com/savaki/fronttier) ![image](https://api.travis-ci.org/savaki/fronttier.png)
+[![GoDoc](https://godoc.org/github.com/savaki/fronttier?status.png)](https://godoc.org/github.com/savaki/fronttier) [![Build Status](https://travis-ci.org/savaki/fronttier.png)](https://travis-ci.org/savaki/fronttier)
+
 
 A routing reverse-proxy written in Go.
 
