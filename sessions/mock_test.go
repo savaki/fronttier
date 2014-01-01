@@ -13,10 +13,18 @@ type Command struct {
 }
 
 type MockConn struct {
-	Error    error
-	Done     []Command
-	Sent     []Command
-	Response interface{}
+	Done       []Command
+	Sent       []Command
+	Response   interface{}
+	Error      error
+	DoErr      error
+	SendErr    error
+	FlushErr   error
+	ReceiveErr error
+}
+
+func (self *MockConn) ConnFactory() (redigo.Conn, error) {
+	return self, nil
 }
 
 func (self *MockConn) Close() error {
@@ -28,6 +36,10 @@ func (self *MockConn) Err() error {
 }
 
 func (self *MockConn) Do(commandName string, args ...interface{}) (interface{}, error) {
+	if self.DoErr != nil {
+		return nil, self.DoErr
+	}
+
 	command := Command{commandName, []interface{}(args)}
 	self.Done = append(self.Done, command)
 
@@ -35,6 +47,10 @@ func (self *MockConn) Do(commandName string, args ...interface{}) (interface{}, 
 }
 
 func (self *MockConn) Send(commandName string, args ...interface{}) error {
+	if self.SendErr != nil {
+		return self.SendErr
+	}
+
 	command := Command{commandName, []interface{}(args)}
 	self.Sent = append(self.Sent, command)
 
@@ -42,11 +58,17 @@ func (self *MockConn) Send(commandName string, args ...interface{}) error {
 }
 
 func (self *MockConn) Flush() error {
+	if self.FlushErr != nil {
+		return self.FlushErr
+	}
 	return self.Error
 }
 
 func (self *MockConn) Receive() (interface{}, error) {
-	return nil, self.Error
+	if self.ReceiveErr != nil {
+		return nil, self.ReceiveErr
+	}
+	return self.Response, self.Error
 }
 
 func TestMockConn(t *testing.T) {

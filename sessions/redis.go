@@ -11,9 +11,10 @@ type redis struct {
 }
 
 type RedisConfig struct {
-	namespace string
-	host      string
-	maxIdle   int
+	namespace   string
+	host        string
+	maxIdle     int
+	connFactory func() (redigo.Conn, error)
 }
 
 func Redis() *RedisConfig {
@@ -30,34 +31,56 @@ func (self *RedisConfig) Host(host string) *RedisConfig {
 	return self
 }
 
+func (self *RedisConfig) ConnFactory(connFactory func() (redigo.Conn, error)) *RedisConfig {
+	self.connFactory = connFactory
+	return self
+}
+
 func (self *RedisConfig) Namespace(namespace string) *RedisConfig {
 	self.namespace = namespace
 	return self
 }
 
-func (self *RedisConfig) Build() Store {
+func (self *RedisConfig) getMaxIdle() int {
 	maxIdle := self.maxIdle
 	if maxIdle < 1 {
 		maxIdle = 3
 	}
+	return maxIdle
+}
 
+func (self *RedisConfig) getHost() string {
 	host := self.host
 	if host == "" {
 		host = ":6379"
 	}
+	return host
+}
 
+func (self *RedisConfig) getNamespace() string {
 	namespace := self.namespace
 	if namespace == "" {
 		namespace = "sessions"
 	}
+	return namespace
+}
 
-	conn := func() (redigo.Conn, error) {
-		return redigo.Dial("tcp", host)
+func (self *RedisConfig) getConnFactory() func() (redigo.Conn, error) {
+	connFactory := self.connFactory
+	if connFactory == nil {
+		host := self.getHost()
+		connFactory = func() (redigo.Conn, error) {
+			return redigo.Dial("tcp", host)
+		}
 	}
-	pool := redigo.NewPool(conn, maxIdle)
+	return connFactory
+}
+
+func (self *RedisConfig) Build() Store {
+	pool := redigo.NewPool(self.getConnFactory(), self.getMaxIdle())
 
 	return &redis{
-		namespace: namespace,
+		namespace: self.getNamespace(),
 		pool:      pool,
 	}
 }
