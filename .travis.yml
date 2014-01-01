@@ -7,7 +7,9 @@ go:
 
 install:
  - export PATH=$PATH:$HOME/gopath/bin
- - go get -v ./...
+ - go get github.com/smartystreets/goconvey
+ - go get github.com/garyburd/redigo
+ - go get github.com/nu7hatch/gouuid
 
 script:
  - go test -v ./...
