@@ -4,13 +4,12 @@ import (
 	"errors"
 	"github.com/savaki/fronttier/filter"
 	. "github.com/savaki/fronttier/matcher"
-	"github.com/savaki/fronttier/proxy"
 	"net/http"
 )
 
 var (
-	NoHandlerDefinedErr = errors.New("No handler defined")
-	HandlerAndProxyErr  = errors.New("Cannot define BOTH a handler AND a proxy")
+	NoHandlerDefinedErr  = errors.New("No handler defined")
+	HandlerAndBuilderErr = errors.New("Cannot define BOTH a handler AND a builder")
 )
 
 // Holds configuration for our route builder.
@@ -22,18 +21,13 @@ type RouteConfig struct {
 	matchers       []Matcher
 	filters        []filter.HandlerFilter
 	handler        http.Handler
-	proxyConfig    *proxy.BuilderConfig
+	builder        handlerBuilder
 	err            error
 }
 
 // instantiates a new route builder
 func newRouteBuilder() *RouteConfig {
 	return &RouteConfig{}
-}
-
-func (self *RouteConfig) Proxy() *proxy.BuilderConfig {
-	self.proxyConfig = proxy.Builder()
-	return self.proxyConfig
 }
 
 // Indicates that this Route can create new sessions.  Make to also
@@ -55,8 +49,15 @@ func (self *RouteConfig) Matcher(matcher Matcher) *RouteConfig {
 // Specify the underlying handler to process the request.  A Route
 // has only one handler so calling this again will replace the
 // previous Handler
-func (self *RouteConfig) Handler(handler http.Handler) *RouteConfig {
-	self.handler = handler
+func (self *RouteConfig) Handler(handler interface{}) *RouteConfig {
+	switch v := handler.(type) {
+	case http.Handler:
+		self.handler = v
+	case handlerBuilder:
+		self.builder = v
+	default:
+		self.err = errors.New("#Handler can only accept http.Handler and #handlerBuilder types")
+	}
 	return self
 }
 
@@ -71,8 +72,9 @@ func (self *RouteConfig) Filter(filter filter.HandlerFilter) *RouteConfig {
 }
 
 func (self *RouteConfig) getHandler() (http.Handler, error) {
-	if self.proxyConfig != nil {
-		return self.proxyConfig.Build()
+	if self.builder != nil {
+		return self.builder.Build()
+
 	} else {
 		return self.handler, nil
 	}
@@ -83,11 +85,11 @@ func (self *RouteConfig) Build() (*Route, error) {
 	if self.err != nil {
 		return nil, self.err
 
-	} else if self.handler == nil && self.proxyConfig == nil {
+	} else if self.handler == nil && self.builder == nil {
 		return nil, NoHandlerDefinedErr
 
-	} else if self.handler != nil && self.proxyConfig != nil {
-		return nil, HandlerAndProxyErr
+	} else if self.handler != nil && self.builder != nil {
+		return nil, HandlerAndBuilderErr
 	}
 
 	handler, err := self.getHandler()

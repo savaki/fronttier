@@ -5,7 +5,12 @@ import (
 	"github.com/savaki/fronttier/auth"
 	"github.com/savaki/fronttier/filter"
 	. "github.com/savaki/fronttier/matcher"
+	"net/http"
 )
+
+type handlerBuilder interface {
+	Build() (http.Handler, error)
+}
 
 // BuilderConfig collects all the settings used to construct
 // a *Fronttier server.

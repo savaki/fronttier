@@ -28,19 +28,19 @@ We could configure Fronttier as follows:
 package main
 
 import (
-  "github.com/savaki/fronttier"
+  . "github.com/savaki/fronttier"
 )
 
 func main() {
-  builder := fronttier.Builder()
+  builder := Builder()
 
   builder.AuthConfig().ReservedHeaders("X-User-Id", "X-Name", "X-Email")
 
-  builder.Paths("/x").Proxy().Url("http://x-service")
-  builder.Paths("/y").Proxy().Url("http://y-service")
+  builder.Paths("/x").Handler(Proxy().Url("http://x-service"))
+  builder.Paths("/y").Handler(Proxy().Url("http://y-service"))
   builder.
     Paths("/login").
-    Proxy().Url("http://login-service")
+    Handler(Proxy().Url("http://login-service"))
 
   server, _ := builder.Build()
   server.ListenAndServe(":8080")
@@ -98,20 +98,20 @@ We can modify our previous example to this:
 package main
 
 import (
-  "github.com/savaki/fronttier"
+  . "github.com/savaki/fronttier"
 )
 
 func main() {
-  builder := fronttier.Builder()
+  builder := Builder()
 
   builder.AuthConfig().ReservedHeaders("X-User-Id", "X-Name", "X-Email")
 
-  builder.Paths("/x").Proxy().Url("http://x-service")
-  builder.Paths("/y").Proxy().Url("http://y-service")
+  builder.Paths("/x").Handler(Proxy().Url("http://x-service"))
+  builder.Paths("/y").Handler(Proxy().Url("http://y-service"))
   builder.
     Paths("/login").
     SessionFactory(). // mark this route as capable of creating a session
-    Proxy().Url("http://login-service")
+    Handler(Proxy().Url("http://login-service"))
 
   server, _ := builder.Build()
   server.ListenAndServe(":8080")

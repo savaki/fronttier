@@ -4,6 +4,7 @@ import (
 	"errors"
 	. "github.com/savaki/fronttier/matcher"
 	"github.com/savaki/fronttier/mock"
+	"github.com/savaki/fronttier/proxy"
 	. "github.com/smartystreets/goconvey/convey"
 	"net/http"
 	"testing"
@@ -52,31 +53,6 @@ func TestRouteBuilder(t *testing.T) {
 			})
 		})
 
-		Convey("When I assign a #Proxy", func() {
-			tripper := &mock.RoundTripper{}
-			builder.Proxy().RoundTripper(tripper).Url("http://www.eek.com")
-			route, err = builder.Matcher(Prefix("/sample")).Build()
-			So(err, ShouldBeNil)
-
-			Convey("Then I expect that messages sent to that route to use the proxy", func() {
-				w := &mock.ResponseWriter{}
-				req, _ := http.NewRequest("GET", "http://www.yahoo.com/sample", nil)
-				route.ServeHTTP(w, req)
-
-				So(route.handler, ShouldNotBeNil)
-				So(tripper.Request, ShouldNotBeNil)
-			})
-		})
-
-		Convey("When I assign an incomplete #Proxy", func() {
-			builder.Proxy()
-			_, err := builder.Matcher(Prefix("/sample")).Build()
-
-			Convey("Then I expect a an err", func() {
-				So(err, ShouldNotBeNil)
-			})
-		})
-
 		Convey("When I assign a Handler", func() {
 			handler := &mock.Handler{
 				OutHeader: map[string]string{"hello": "world"},
@@ -90,15 +66,16 @@ func TestRouteBuilder(t *testing.T) {
 				So(route, ShouldNotBeNil)
 				So(route.handler, ShouldResemble, handler)
 			})
+		})
 
-			Convey("And I also assign a proxy", func() {
-				builder.Proxy()
+		Convey("When I assign a handlerBuilder via #Handler", func() {
+			proxyBuilder := proxy.Builder().Url("http://www.eek.com")
+			builder.Handler(proxyBuilder)
+			handler, err = builder.getHandler()
 
-				Convey("Then I expect build to return a HandlerAndProxyErr", func() {
-					_, err := builder.Build()
-
-					So(err, ShouldEqual, HandlerAndProxyErr)
-				})
+			Convey("Then I expect the http.Handler to be materialized", func() {
+				So(err, ShouldBeNil)
+				So(handler, ShouldNotBeNil)
 			})
 		})
 
