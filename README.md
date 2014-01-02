@@ -28,25 +28,22 @@ We could configure Fronttier as follows:
 package main
 
 import (
-	"github.com/savaki/fronttier/proxy"
-	"github.com/savaki/fronttier"
+  "github.com/savaki/fronttier"
 )
 
 func main() {
-	x, _ := proxy.Builder().Url("http://x-service").Build()
-	y, _ := proxy.Builder().Url("http://y-service").Build()
-	login, _ := proxy.Builder().Url("http://login-service").Build()
+  builder := fronttier.Builder()
 
-	builder := fronttier.Builder()
+  builder.AuthConfig().ReservedHeaders("X-User-Id", "X-Name", "X-Email")
 
-	builder.Paths("/x").Handler(x)
-	builder.Paths("/y").Handler(y)
-	builder.
-		Paths("/login").
-		Handler(login)
+  builder.Paths("/x").Proxy().Url("http://x-service")
+  builder.Paths("/y").Proxy().Url("http://y-service")
+  builder.
+    Paths("/login").
+    Proxy().Url("http://login-service")
 
-	server, _ := builder.Build()
-	server.ListenAndServe(":8080")
+  server, _ := builder.Build()
+  server.ListenAndServe(":8080")
 }
 ```
 
@@ -101,28 +98,23 @@ We can modify our previous example to this:
 package main
 
 import (
-	"github.com/savaki/fronttier/proxy"
-	"github.com/savaki/fronttier"
+  "github.com/savaki/fronttier"
 )
 
 func main() {
-	x, _ := proxy.Builder().Url("http://x-service").Build()
-	y, _ := proxy.Builder().Url("http://y-service").Build()
-	login, _ := proxy.Builder().Url("http://login-service").Build()
+  builder := fronttier.Builder()
 
-	builder := fronttier.Builder()
+  builder.AuthConfig().ReservedHeaders("X-User-Id", "X-Name", "X-Email")
 
-	builder.AuthConfig().ReservedHeaders("X-User-Id", "X-Name", "X-Email")
+  builder.Paths("/x").Proxy().Url("http://x-service")
+  builder.Paths("/y").Proxy().Url("http://y-service")
+  builder.
+    Paths("/login").
+    SessionFactory(). // mark this route as capable of creating a session
+    Proxy().Url("http://login-service")
 
-	builder.Paths("/x").Handler(x)
-	builder.Paths("/y").Handler(y)
-	builder.
-		Paths("/login").
-		Handler(login).
-		SessionFactory() // #marks this route as capable of creating a session
-
-	server, _ := builder.Build()
-	server.ListenAndServe(":8080")
+  server, _ := builder.Build()
+  server.ListenAndServe(":8080")
 }
 ```
 

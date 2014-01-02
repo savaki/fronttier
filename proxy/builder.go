@@ -29,13 +29,13 @@ type BuilderConfig struct {
 // the name suggests, it uses the builder pattern to construct proxies.
 // Once you've finished adding all your options, call #Build to get an
 // instance of http.Handler back
-func Builder() BuilderConfig {
-	return BuilderConfig{}
+func Builder() *BuilderConfig {
+	return &BuilderConfig{}
 }
 
 // Url provides a simple method of assigning schema and host in one
 // fell shot.  Currently, the path is unused.
-func (self BuilderConfig) Url(rawurl string) BuilderConfig {
+func (self *BuilderConfig) Url(rawurl string) *BuilderConfig {
 	if self.err == nil {
 		if strings.TrimSpace(rawurl) == "" {
 			self.err = errors.New("ERROR - Url invoke with an empty string")
@@ -47,21 +47,21 @@ func (self BuilderConfig) Url(rawurl string) BuilderConfig {
 	return self
 }
 
-func (self BuilderConfig) Filter(filter Filter) BuilderConfig {
+func (self *BuilderConfig) Filter(filter Filter) *BuilderConfig {
 	if self.err == nil {
 		self.filters = append(self.filters, filter)
 	}
 	return self
 }
 
-func (self BuilderConfig) RoundTripper(roundTripper http.RoundTripper) BuilderConfig {
+func (self *BuilderConfig) RoundTripper(roundTripper http.RoundTripper) *BuilderConfig {
 	if self.err == nil {
 		self.roundTripper = roundTripper
 	}
 	return self
 }
 
-func (self BuilderConfig) Build() (http.Handler, error) {
+func (self *BuilderConfig) Build() (http.Handler, error) {
 	if self.err != nil {
 		return nil, self.err
 	}
