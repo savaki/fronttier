@@ -2,6 +2,7 @@ package fronttier
 
 import (
 	"errors"
+	. "github.com/savaki/fronttier/matcher"
 	"github.com/savaki/fronttier/mock"
 	. "github.com/smartystreets/goconvey/convey"
 	"net/http"
@@ -29,8 +30,8 @@ func TestRouteBuilder(t *testing.T) {
 		})
 
 		Convey("When I add a Matcher it appends it to the list of matchers", func() {
-			m1 := &PrefixMatcher{"/hello"}
-			m2 := &PrefixMatcher{"/world"}
+			m1 := Prefix("/hello")
+			m2 := Prefix("/world")
 			builder.Matcher(m1).Matcher(m2)
 
 			Convey("Then I expect the Matchers to have been added in order", func() {
@@ -54,7 +55,7 @@ func TestRouteBuilder(t *testing.T) {
 		Convey("When I assign a #Proxy", func() {
 			tripper := &mock.RoundTripper{}
 			builder.Proxy().RoundTripper(tripper).Url("http://www.eek.com")
-			route, err = builder.Matcher(&PrefixMatcher{"/sample"}).Build()
+			route, err = builder.Matcher(Prefix("/sample")).Build()
 			So(err, ShouldBeNil)
 
 			Convey("Then I expect that messages sent to that route to use the proxy", func() {
@@ -69,7 +70,7 @@ func TestRouteBuilder(t *testing.T) {
 
 		Convey("When I assign an incomplete #Proxy", func() {
 			builder.Proxy()
-			_, err := builder.Matcher(&PrefixMatcher{"/sample"}).Build()
+			_, err := builder.Matcher(Prefix("/sample")).Build()
 
 			Convey("Then I expect a an err", func() {
 				So(err, ShouldNotBeNil)

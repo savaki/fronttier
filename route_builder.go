@@ -3,6 +3,7 @@ package fronttier
 import (
 	"errors"
 	"github.com/savaki/fronttier/filter"
+	. "github.com/savaki/fronttier/matcher"
 	"github.com/savaki/fronttier/proxy"
 	"net/http"
 )

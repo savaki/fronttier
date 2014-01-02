@@ -1,4 +1,4 @@
-package fronttier
+package matcher
 
 import (
 	"net/http"
@@ -6,33 +6,32 @@ import (
 )
 
 // Matcher provides a standard interface for all sorts of Route
-// matchers such as PrefixMatcher and OrMatcher
+// matchers such as prefixMatcher and orMatcher
 type Matcher interface {
 	Matches(*http.Request) bool
 }
 
-// PrefixMatcher is a matcher that matches against the uri prefix
-type PrefixMatcher struct {
+// prefixMatcher is a matcher that matches against the uri prefix
+type prefixMatcher struct {
 	prefix string
 }
 
 // Match against the URI prefix
-func (self *PrefixMatcher) Matches(req *http.Request) bool {
+func (self *prefixMatcher) Matches(req *http.Request) bool {
 	return strings.HasPrefix(req.URL.Path, self.prefix)
 }
 
-// OrMatcher applies a logical Or to all the matchers defined
-type OrMatcher struct {
+func Prefix(prefix string) Matcher {
+	return &prefixMatcher{prefix}
+}
+
+// orMatcher applies a logical Or to all the matchers defined
+type orMatcher struct {
 	matchers []Matcher
 }
 
-func (self *OrMatcher) Add(matcher Matcher) *OrMatcher {
-	self.matchers = append(self.matchers, matcher)
-	return self
-}
-
 // match if at least one of the matchers matches
-func (self *OrMatcher) Matches(req *http.Request) bool {
+func (self *orMatcher) Matches(req *http.Request) bool {
 	for _, matcher := range self.matchers {
 		if matcher.Matches(req) {
 			return true
@@ -47,7 +46,7 @@ func Or(matchers ...Matcher) Matcher {
 		return matchers[0]
 	}
 
-	or := &OrMatcher{}
+	or := &orMatcher{}
 
 	for _, matcher := range matchers {
 		or.matchers = append(or.matchers, matcher)

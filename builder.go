@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/savaki/fronttier/auth"
 	"github.com/savaki/fronttier/filter"
+	. "github.com/savaki/fronttier/matcher"
 )
 
 // BuilderConfig collects all the settings used to construct
@@ -29,7 +30,7 @@ func (self *BuilderConfig) Paths(paths ...string) *RouteConfig {
 
 	var matchers []Matcher
 	for _, path := range paths {
-		matchers = append(matchers, &PrefixMatcher{path})
+		matchers = append(matchers, Prefix(path))
 	}
 	routeConfig.Matcher(Or(matchers...))
 
