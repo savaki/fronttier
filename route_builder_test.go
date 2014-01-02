@@ -10,6 +10,9 @@ import (
 
 func TestRouteBuilder(t *testing.T) {
 	var builder *RouteConfig
+	var err error
+	var route *Route
+	var handler http.Handler
 
 	Convey("Given a RouteBuilder", t, func() {
 		builder = newRouteBuilder()
@@ -18,7 +21,7 @@ func TestRouteBuilder(t *testing.T) {
 			builder.err = errors.New("I have an error")
 
 			Convey("Then I expect #Build to return an error", func() {
-				_, err := builder.Build()
+				_, err = builder.Build()
 
 				So(err, ShouldEqual, builder.err)
 				So(err, ShouldNotBeNil)
@@ -37,8 +40,8 @@ func TestRouteBuilder(t *testing.T) {
 			})
 
 			Convey("The the built Route should have the same matchers", func() {
-				handler := &mock.Handler{}
-				route, err := builder.Handler(handler).Build()
+				handler = &mock.Handler{}
+				route, err = builder.Handler(handler).Build()
 
 				So(err, ShouldBeNil)
 				So(route, ShouldNotBeNil)
@@ -48,7 +51,32 @@ func TestRouteBuilder(t *testing.T) {
 			})
 		})
 
-		Convey("When I assign a handler", func() {
+		Convey("When I assign a #Proxy", func() {
+			tripper := &mock.RoundTripper{}
+			builder.Proxy().RoundTripper(tripper).Url("http://www.eek.com")
+			route, err = builder.Matcher(&PrefixMatcher{"/sample"}).Build()
+			So(err, ShouldBeNil)
+
+			Convey("Then I expect that messages sent to that route to use the proxy", func() {
+				w := &mock.ResponseWriter{}
+				req, _ := http.NewRequest("GET", "http://www.yahoo.com/sample", nil)
+				route.ServeHTTP(w, req)
+
+				So(route.handler, ShouldNotBeNil)
+				So(tripper.Request, ShouldNotBeNil)
+			})
+		})
+
+		Convey("When I assign an incomplete #Proxy", func() {
+			builder.Proxy()
+			_, err := builder.Matcher(&PrefixMatcher{"/sample"}).Build()
+
+			Convey("Then I expect a an err", func() {
+				So(err, ShouldNotBeNil)
+			})
+		})
+
+		Convey("When I assign a Handler", func() {
 			handler := &mock.Handler{
 				OutHeader: map[string]string{"hello": "world"},
 			}
@@ -60,6 +88,16 @@ func TestRouteBuilder(t *testing.T) {
 				So(err, ShouldBeNil)
 				So(route, ShouldNotBeNil)
 				So(route.handler, ShouldResemble, handler)
+			})
+
+			Convey("And I also assign a proxy", func() {
+				builder.Proxy()
+
+				Convey("Then I expect build to return a HandlerAndProxyErr", func() {
+					_, err := builder.Build()
+
+					So(err, ShouldEqual, HandlerAndProxyErr)
+				})
 			})
 		})
 

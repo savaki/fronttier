@@ -3,7 +3,13 @@ package fronttier
 import (
 	"errors"
 	"github.com/savaki/fronttier/filter"
+	"github.com/savaki/fronttier/proxy"
 	"net/http"
+)
+
+var (
+	NoHandlerDefinedErr = errors.New("No handler defined")
+	HandlerAndProxyErr  = errors.New("Cannot define BOTH a handler AND a proxy")
 )
 
 // Holds configuration for our route builder.
@@ -15,12 +21,18 @@ type RouteConfig struct {
 	matchers       []Matcher
 	filters        []filter.HandlerFilter
 	handler        http.Handler
+	proxyConfig    *proxy.BuilderConfig
 	err            error
 }
 
 // instantiates a new route builder
 func newRouteBuilder() *RouteConfig {
 	return &RouteConfig{}
+}
+
+func (self *RouteConfig) Proxy() *proxy.BuilderConfig {
+	self.proxyConfig = proxy.Builder()
+	return self.proxyConfig
 }
 
 // Indicates that this Route can create new sessions.  Make to also
@@ -57,15 +69,32 @@ func (self *RouteConfig) Filter(filter filter.HandlerFilter) *RouteConfig {
 	return self
 }
 
+func (self *RouteConfig) getHandler() (http.Handler, error) {
+	if self.proxyConfig != nil {
+		return self.proxyConfig.Build()
+	} else {
+		return self.handler, nil
+	}
+}
+
 // Instantiate a new *Route instance from our configuration.
 func (self *RouteConfig) Build() (*Route, error) {
 	if self.err != nil {
 		return nil, self.err
-	} else if self.handler == nil {
-		return nil, errors.New("Cannot construct a route without a handler")
+
+	} else if self.handler == nil && self.proxyConfig == nil {
+		return nil, NoHandlerDefinedErr
+
+	} else if self.handler != nil && self.proxyConfig != nil {
+		return nil, HandlerAndProxyErr
 	}
 
-	handler := filter.Flatten(self.filters, self.handler)
+	handler, err := self.getHandler()
+	if err != nil {
+		return nil, err
+	}
+
+	handler = filter.Flatten(self.filters, handler)
 
 	return &Route{
 		matchers: self.matchers,
