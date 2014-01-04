@@ -1,0 +1,5 @@
+package fronttier
+
+func ExampleA() {
+
+}
