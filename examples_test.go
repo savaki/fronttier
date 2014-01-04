@@ -1,5 +1,9 @@
 package fronttier
 
-func ExampleA() {
+import (
+	"fmt"
+)
 
+func ExampleBuilder() {
+	fmt.Println("hello world")
 }
