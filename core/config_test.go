@@ -1,4 +1,4 @@
-package fronttier
+package core
 
 import (
 	"bytes"
@@ -10,7 +10,7 @@ func TestConfig(t *testing.T) {
 	Convey("#Load", t, func() {
 		Convey("When I load a badly formed json file", func() {
 			badlyFormed := []byte(`{`)
-			builder := Load(bytes.NewReader(badlyFormed))
+			builder := Builder().Load(bytes.NewReader(badlyFormed))
 
 			Convey("Then I expect the builder to have an error", func() {
 				So(builder.err, ShouldNotBeNil)
@@ -23,7 +23,7 @@ func TestConfig(t *testing.T) {
 					"paths":["/"]
 				}
 			]}`)
-			builder := Load(bytes.NewReader(incomplete))
+			builder := Builder().Load(bytes.NewReader(incomplete))
 
 			Convey("Then I expect the builder to have an error", func() {
 				So(builder.err, ShouldNotBeNil)
@@ -33,7 +33,7 @@ func TestConfig(t *testing.T) {
 
 	Convey("#LoadFile", t, func() {
 		Convey("When I attempt to load a file that doesn't exist", func() {
-			builder := LoadFile("does-not-exist")
+			builder := Builder().LoadFile("does-not-exist")
 
 			Convey("Then I expect the builder to have an error", func() {
 				So(builder.err, ShouldNotBeNil)
@@ -41,7 +41,7 @@ func TestConfig(t *testing.T) {
 		})
 
 		Convey("When I load a valid configuration from file, sample.json", func() {
-			builder := LoadFile("config/sample.json")
+			builder := Builder().LoadFile("sample.json")
 
 			Convey("Then I expect a valid builder", func() {
 				So(builder, ShouldNotBeNil)

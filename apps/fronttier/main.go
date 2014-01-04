@@ -3,7 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
-	f "github.com/savaki/fronttier"
+	. "github.com/savaki/fronttier"
+	"github.com/savaki/fronttier/core"
 	"os"
 )
 
@@ -12,10 +13,10 @@ var (
 	filename = flag.String("config", "fronttier.json", "the configuration file to read [default:fronttier.json]")
 )
 
-func getServer(filename string) (*f.Frontier, error) {
+func getServer(filename string) (*core.Frontier, error) {
 	flag.Parse()
 
-	builder := f.LoadFile(filename)
+	builder := Builder().LoadFile(filename)
 	return builder.Build()
 }
 

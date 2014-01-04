@@ -1,4 +1,4 @@
-package fronttier
+package core
 
 import (
 	"errors"
