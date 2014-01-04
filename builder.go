@@ -5,12 +5,7 @@ import (
 	"github.com/savaki/fronttier/auth"
 	"github.com/savaki/fronttier/filter"
 	. "github.com/savaki/fronttier/matcher"
-	"net/http"
 )
-
-type handlerBuilder interface {
-	Build() (http.Handler, error)
-}
 
 // BuilderConfig collects all the settings used to construct
 // a *Fronttier server.
@@ -31,7 +26,7 @@ func Builder() *BuilderConfig {
 // The list of path prefixes to match again.
 // Note: / will match everything
 func (self *BuilderConfig) Paths(paths ...string) *RouteConfig {
-	routeConfig := newRouteBuilder()
+	routeConfig := &RouteConfig{}
 
 	var matchers []Matcher
 	for _, path := range paths {

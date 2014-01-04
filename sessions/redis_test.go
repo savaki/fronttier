@@ -36,7 +36,7 @@ func TestRedis(t *testing.T) {
 				})
 			})
 
-			Convey("#Create", t, func() {
+			Convey("#Create", func() {
 				Convey("should create a new session with a new sessionId and persist it into redis", func() {
 					values := map[string]string{"foo": "bar"}
 
@@ -53,7 +53,7 @@ func TestRedis(t *testing.T) {
 				})
 			})
 
-			Convey("#Build", t, func() {
+			Convey("#Build", func() {
 				Convey("should default the namespace to 'sessions'", func() {
 					store := Redis().Build()
 					r := store.(*redis)
@@ -76,7 +76,7 @@ func TestRedis(t *testing.T) {
 				})
 			})
 
-			Convey("#Delete", t, func() {
+			Convey("#Delete", func() {
 				Convey("should delete values from redis", func() {
 					values := map[string]string{"foo": "bar"}
 

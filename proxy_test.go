@@ -8,10 +8,9 @@ import (
 func TestProxy(t *testing.T) {
 	Convey("When I call Proxy()", t, func() {
 		Convey("Then I expect an handlerBuilder", func() {
-			var hb handlerBuilder
-			hb = Proxy()
+			proxy := Proxy()
 
-			So(hb, ShouldNotBeNil)
+			So(proxy, ShouldNotBeNil)
 		})
 	})
 }

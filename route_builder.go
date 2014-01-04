@@ -8,9 +8,14 @@ import (
 )
 
 var (
-	NoHandlerDefinedErr  = errors.New("No handler defined")
-	HandlerAndBuilderErr = errors.New("Cannot define BOTH a handler AND a builder")
+	NoHandlerDefinedErr      = errors.New("No handler defined")
+	HandlerAndBuilderErr     = errors.New("Cannot define BOTH a handler AND a builder")
+	HandlerAndBuilderOnlyErr = errors.New("#Handler can only accept http.Handler and #handlerBuilder types")
 )
+
+type handlerBuilder interface {
+	Build() (http.Handler, error)
+}
 
 // Holds configuration for our route builder.
 //
@@ -23,11 +28,6 @@ type RouteConfig struct {
 	handler        http.Handler
 	builder        handlerBuilder
 	err            error
-}
-
-// instantiates a new route builder
-func newRouteBuilder() *RouteConfig {
-	return &RouteConfig{}
 }
 
 // Indicates that this Route can create new sessions.  Make to also
@@ -56,7 +56,7 @@ func (self *RouteConfig) Handler(handler interface{}) *RouteConfig {
 	case handlerBuilder:
 		self.builder = v
 	default:
-		self.err = errors.New("#Handler can only accept http.Handler and #handlerBuilder types")
+		self.err = HandlerAndBuilderOnlyErr
 	}
 	return self
 }
