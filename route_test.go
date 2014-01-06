@@ -16,6 +16,14 @@ func TestRoute(t *testing.T) {
 		route = &Route{}
 		handler = &mock.Handler{}
 
+		Convey("When I call #SessionFactory", func() {
+			route.SessionFactory()
+
+			Convey("Then #sessionFactory is set to true", func() {
+				So(route.sessionFactory, ShouldBeTrue)
+			})
+		})
+
 		Convey("When I add a #PathPrefix", func() {
 			route.PathPrefix("/sample")
 

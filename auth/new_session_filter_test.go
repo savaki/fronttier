@@ -62,7 +62,7 @@ func TestNewSessionFilter(t *testing.T) {
 			req, _ := http.NewRequest("GET", "http://www.google.com", nil)
 			w := &mock.ResponseWriter{}
 
-			filter.Filter(w, req, handler)
+			filter.Filter(w, req, handler.ServeHTTP)
 
 			So(w.Header()["Set-Cookie"], ShouldNotBeNil)
 			So(len(w.Header()["Set-Cookie"]), ShouldEqual, 1)
@@ -80,7 +80,7 @@ func TestNewSessionFilter(t *testing.T) {
 				req, _ := http.NewRequest("GET", "http://www.google.com", nil)
 				w := &mock.ResponseWriter{}
 
-				filter.Filter(w, req, handler)
+				filter.Filter(w, req, handler.ServeHTTP)
 
 				So(string(w.Bytes()), ShouldEqual, content)
 			})

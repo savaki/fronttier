@@ -29,9 +29,9 @@ func (self *NewSessionFilter) createSessionWhenRequired(source http.ResponseWrit
 	}
 }
 
-func (self *NewSessionFilter) Filter(w http.ResponseWriter, req *http.Request, target http.Handler) {
+func (self *NewSessionFilter) Filter(w http.ResponseWriter, req *http.Request, handlerFunc http.HandlerFunc) {
 	tempWriter := &mock.ResponseWriter{}
-	target.ServeHTTP(tempWriter, req)
+	handlerFunc(tempWriter, req)
 
 	copyNonReservedHeaders(self.reservedHeaders, tempWriter, w)
 	self.createSessionWhenRequired(tempWriter, w)

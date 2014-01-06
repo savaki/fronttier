@@ -35,7 +35,7 @@ func TestAuthFilter(t *testing.T) {
 		Convey("When the client attempts to forge a header", func() {
 			request.Header.Set(header, "blah")
 			filter, _ = builder.BuildAuthFilter()
-			filter.Filter(w, request, handler)
+			filter.Filter(w, request, handler.ServeHTTP)
 
 			Convey("Then the filter should strip out the header", func() {
 				So(len(handler.InHeader), ShouldEqual, 0)
@@ -48,7 +48,7 @@ func TestAuthFilter(t *testing.T) {
 			request.AddCookie(cookie)
 
 			filter, _ = builder.SessionStore(sessionStore).BuildAuthFilter()
-			filter.Filter(w, request, handler)
+			filter.Filter(w, request, handler.ServeHTTP)
 
 			Convey("Then values should be retrieved from the sessionStore and placed in the header", func() {
 				So(handler.InHeader[header], ShouldContain, "123")
@@ -60,7 +60,7 @@ func TestAuthFilter(t *testing.T) {
 			request.AddCookie(cookie)
 
 			filter, _ = builder.SessionStore(sessionStore).BuildAuthFilter()
-			filter.Filter(w, request, handler)
+			filter.Filter(w, request, handler.ServeHTTP)
 
 			Convey("Then the request should be handled normally", func() {
 				So(handler.InMethod, ShouldEqual, request.Method)
@@ -76,7 +76,7 @@ func TestAuthFilter(t *testing.T) {
 			handler.OutHeader = map[string]string{logoutHeader: "log-me-out"}
 
 			filter, _ = builder.SessionStore(sessionStore).BuildAuthFilter()
-			filter.Filter(w, request, handler)
+			filter.Filter(w, request, handler.ServeHTTP)
 
 			Convey("Then the session cookie should be cleared", func() {
 				session, err := sessionStore.Get(session.Id)
@@ -91,7 +91,7 @@ func TestAuthFilter(t *testing.T) {
 				handler.OutContent = []byte("hello world")
 
 				filter, _ = builder.BuildAuthFilter()
-				filter.Filter(w, request, handler)
+				filter.Filter(w, request, handler.ServeHTTP)
 
 				So(w.String(), ShouldEqual, string(handler.OutContent))
 			})

@@ -9,11 +9,12 @@ import (
 type MatcherFunc func(*http.Request) bool
 
 type Route struct {
-	matchers    []MatcherFunc
-	target      http.HandlerFunc
-	filters     []FilterFunc
-	proxyConfig *proxy.BuilderConfig
-	all         http.HandlerFunc
+	matchers       []MatcherFunc
+	target         http.HandlerFunc
+	filters        []FilterFunc
+	proxyConfig    *proxy.BuilderConfig
+	all            http.HandlerFunc
+	sessionFactory bool
 }
 
 func (self *Route) PathPrefix(prefix string) *Route {
@@ -53,6 +54,11 @@ func (self *Route) Handler(handler http.Handler) *Route {
 func (self *Route) HandlerFunc(handlerFunc http.HandlerFunc) *Route {
 	self.target = handlerFunc
 	self.all = flatten(self.filters, self.target)
+	return self
+}
+
+func (self *Route) SessionFactory() *Route {
+	self.sessionFactory = true
 	return self
 }
 

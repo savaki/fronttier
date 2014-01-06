@@ -47,13 +47,13 @@ func (self *AuthFilter) transferHeaders(cookie *http.Cookie, source http.Respons
 	}
 }
 
-func (self *AuthFilter) Filter(w http.ResponseWriter, req *http.Request, target http.Handler) {
+func (self *AuthFilter) Filter(w http.ResponseWriter, req *http.Request, handlerFunc http.HandlerFunc) {
 	req = self.stripReservedHeaders(req)
 	req, cookie := self.insertSessionInfo(req)
 
 	// capture the response from our service
 	tempWriter := &mock.ResponseWriter{}
-	target.ServeHTTP(tempWriter, req)
+	handlerFunc(tempWriter, req)
 
 	// and selectively transfer it to the original request
 	self.transferHeaders(cookie, tempWriter, w)
