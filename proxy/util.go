@@ -23,6 +23,8 @@ var hopHeaders = []string{
 func rewrite(target *url.URL, req *http.Request) *http.Request {
 	outreq := new(http.Request)
 
+	outreq.Method = req.Method
+
 	// protocol
 	outreq.Proto = "HTTP/1.1"
 	outreq.ProtoMajor = 1

@@ -8,6 +8,10 @@ type Router struct {
 	routes []*Route
 }
 
+func NewRouter() *Router {
+	return &Router{}
+}
+
 func (self *Router) NewRoute() *Route {
 	route := &Route{}
 	self.routes = append(self.routes, route)

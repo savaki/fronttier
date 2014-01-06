@@ -1,6 +1,7 @@
 package fronttier
 
 import (
+	"github.com/savaki/fronttier/proxy"
 	"net/http"
 	"strings"
 )
@@ -8,10 +9,11 @@ import (
 type MatcherFunc func(*http.Request) bool
 
 type Route struct {
-	matchers []MatcherFunc
-	target   http.HandlerFunc
-	filters  []FilterFunc
-	all      http.HandlerFunc
+	matchers    []MatcherFunc
+	target      http.HandlerFunc
+	filters     []FilterFunc
+	proxyConfig *proxy.BuilderConfig
+	all         http.HandlerFunc
 }
 
 func (self *Route) PathPrefix(prefix string) *Route {
@@ -52,6 +54,31 @@ func (self *Route) HandlerFunc(handlerFunc http.HandlerFunc) *Route {
 	self.target = handlerFunc
 	self.all = flatten(self.filters, self.target)
 	return self
+}
+
+func (self *Route) withProxy(f func()) *Route {
+	if self.proxyConfig == nil {
+		self.proxyConfig = proxy.Builder()
+	}
+	f()
+	handler, err := self.proxyConfig.Build()
+	if err == nil {
+		self.target = handler.ServeHTTP
+		self.all = flatten(self.filters, self.target)
+	}
+	return self
+}
+
+func (self *Route) Proxy(rawurl string) *Route {
+	return self.withProxy(func() {
+		self.proxyConfig.Url(rawurl)
+	})
+}
+
+func (self *Route) ProxyRoundTripper(roundTripper http.RoundTripper) *Route {
+	return self.withProxy(func() {
+		self.proxyConfig.RoundTripper(roundTripper)
+	})
 }
 
 func (self *Route) Filter(filter FilterFunc) *Route {

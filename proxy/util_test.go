@@ -24,6 +24,17 @@ func TestUtil(t *testing.T) {
 			So(outreq.Header.Get("hello"), ShouldEqual, "world")
 		})
 
+		Convey("should copy method", func() {
+			target, _ := url.Parse("http://www.google.com/")
+			request, _ := http.NewRequest("GET", "http://www.sample.com/", bytes.NewReader([]byte("hello world")))
+
+			// When
+			outreq := rewrite(target, request)
+
+			// Then
+			So(outreq.Method, ShouldEqual, request.Method)
+		})
+
 		Convey("should prepend the path defined in the target to the re-written path", func() {
 			target, _ := url.Parse("http://www.google.com/prefix")
 			request, _ := http.NewRequest("GET", "http://www.sample.com/abc", nil)

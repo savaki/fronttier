@@ -103,6 +103,18 @@ func TestRoute(t *testing.T) {
 			})
 		})
 
+		Convey("When I add a handler via #Proxy", func() {
+			roundTripper := &mock.RoundTripper{}
+			route.PathPrefix("/").Proxy("http://www.google.com").ProxyRoundTripper(roundTripper)
+
+			Convey("Then I expect calls to ServeHTTP to route through the proxy", func() {
+				route.ServeHTTP(nil, req)
+
+				So(roundTripper.Request.Method, ShouldEqual, req.Method)
+				So(roundTripper.Request.Header.Get("Host"), ShouldEqual, "www.google.com")
+			})
+		})
+
 		Convey("When I add filters via #Filter", func() {
 			handlerFunc := func(w http.ResponseWriter, req *http.Request) {
 				add(req, "target")
