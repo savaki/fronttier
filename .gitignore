@@ -1,3 +1,6 @@
+.idea
+.idea_modules
+*.iml
 *.out
 basic_proxy
 apps/fronttier/fronttier
