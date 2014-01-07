@@ -1,13 +1,13 @@
 package fronttier
 
 import (
-	"github.com/savaki/fronttier/auth"
+	"github.com/savaki/fronttier/sessions"
 	"net/http"
 )
 
 type Router struct {
 	routes   []*Route
-	sessions *auth.BuilderConfig
+	sessions *sessions.BuilderConfig
 	ready    bool
 }
 
@@ -38,8 +38,8 @@ func (self *Router) Handle(prefix string, handler http.Handler) *Router {
 	return self.HandleFunc(prefix, handler.ServeHTTP)
 }
 
-func (self *Router) Sessions() *auth.BuilderConfig {
-	self.sessions = auth.Builder()
+func (self *Router) Sessions() *sessions.BuilderConfig {
+	self.sessions = sessions.Builder()
 	return self.sessions
 }
 

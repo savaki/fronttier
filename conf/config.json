@@ -1,0 +1,18 @@
+{
+	"routes": [
+		{
+			"paths": "/fantasy/",
+			"proxy": "http://www.yahoo.com",
+			"session-factory": true
+		},
+		{
+			"paths": "/",
+			"proxy": "http://www.cnn.com"
+		}
+	],
+
+	"sessions": {
+		"cookie-name": "my-cookie"
+	}
+}
+
