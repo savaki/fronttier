@@ -34,8 +34,6 @@ import (
 func main() {
   router := fronttier.NewRouter()
 
-  router.Sessions().ReservedHeaders("X-User-Id", "X-Name", "X-Email")
-
   router.PathPrefix("/x").Proxy("http://x-service")
   router.PathPrefix("/y").Proxy("http://y-service")
 
