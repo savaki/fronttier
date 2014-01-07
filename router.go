@@ -3,20 +3,16 @@ package fronttier
 import (
 	"github.com/savaki/fronttier/auth"
 	"net/http"
-	"sync"
 )
 
 type Router struct {
 	routes   []*Route
 	sessions *auth.BuilderConfig
-	mu       *sync.Mutex
-	frozen   bool
+	ready    bool
 }
 
 func NewRouter() *Router {
-	return &Router{
-		mu: &sync.Mutex{},
-	}
+	return &Router{}
 }
 
 func (self *Router) NewRoute() *Route {
@@ -47,35 +43,27 @@ func (self *Router) Sessions() *auth.BuilderConfig {
 	return self.sessions
 }
 
-func (self *Router) freeze() {
-	if self.mu == nil {
-		self.mu = &sync.Mutex{}
-	}
+func (self *Router) prepare() {
+	if !self.ready {
+		if self.sessions != nil {
+			authFilter, _ := self.sessions.BuildAuthFilter()
+			sessionFilter, _ := self.sessions.BuildNewSessionFilter()
 
-	self.mu.Lock()
-	defer self.mu.Unlock()
-
-	if self.frozen {
-		return
-	}
-
-	if self.sessions != nil {
-		authFilter, _ := self.sessions.BuildAuthFilter()
-		sessionFilter, _ := self.sessions.BuildNewSessionFilter()
-
-		for _, route := range self.routes {
-			route.Filter(sessionFilter.Filter)
-			if route.sessionFactory {
+			for _, route := range self.routes {
 				route.Filter(authFilter.Filter)
+				if route.sessionFactory {
+					route.Filter(sessionFilter.Filter)
+				}
 			}
 		}
+
+		self.ready = true
 	}
-	self.frozen = true
 }
 
 func (self *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-	if !self.frozen {
-		self.freeze()
+	if !self.ready {
+		self.prepare()
 	}
 
 	for _, route := range self.routes {

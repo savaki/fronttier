@@ -18,6 +18,30 @@ func TestRouter(t *testing.T) {
 		handler = &mock.Handler{}
 		req, _ = http.NewRequest("GET", "http://www.acme.com/sample", nil)
 
+		Convey("When indicate session management via #Sessions", func() {
+			reserved := "X-Reserved"
+			router.Sessions().ReservedHeaders(reserved)
+			router.NewRoute().Handler(handler).SessionFactory()
+
+			Convey("Then I expect to server requests through the handler", func() {
+				// set the OutHeader so that a new session gets created
+				handler.OutHeader = map[string]string{reserved: "blah"}
+				handler.OutStatusCode = 200
+
+				// attempt to forge input header so we can verify its stripped
+				req.Header.Add(reserved, "ping")
+
+				w := &mock.ResponseWriter{}
+				router.ServeHTTP(w, req)
+
+				// verify session created
+				So(w.Header().Get("Set-Cookie"), ShouldNotEqual, "")
+
+				// verify header stripped
+				So(len(handler.InHeader[reserved]), ShouldEqual, 0)
+			})
+		})
+
 		Convey("When I create a #NewRoute", func() {
 			route = router.NewRoute()
 
