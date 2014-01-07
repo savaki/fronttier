@@ -1,14 +1,14 @@
 package main
 
 import (
-	. "github.com/savaki/fronttier"
+	"github.com/savaki/fronttier"
+	"net/http"
 )
 
 func main() {
-	builder := Builder()
-	builder.Paths("/fantasy/").Handler(Proxy().Url("http://sports.yahoo.com"))
-	builder.Paths("/").Handler(Proxy().Url("http://www.cnn.com"))
-	server, _ := builder.Build()
+	router := fronttier.NewRouter()
+	router.PathPrefix("/fantasy/").Proxy("http://sports.yahoo.com")
+	router.PathPrefix("/").Proxy("http://www.cnn.com")
 
-	server.ListenAndServe(":8080")
+	http.ListenAndServe(":8080", router)
 }

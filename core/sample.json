@@ -1,8 +1,0 @@
-{
-	"routes":[
-		{
-			"paths":["/a"],
-			"proxy":"http://www.google.com"
-		}
-	]
-}
