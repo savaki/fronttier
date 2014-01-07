@@ -1,8 +1,7 @@
-package auth
+package sessions
 
 import (
 	"errors"
-	"github.com/savaki/fronttier/sessions"
 	"net/http"
 )
 
@@ -15,7 +14,7 @@ type BuilderConfig struct {
 	timeoutMinutesSet bool
 	logoutHeader      string
 	reservedHeaders   []string
-	sessionStore      sessions.Store
+	sessionStore      Store
 	err               error
 }
 
@@ -59,7 +58,7 @@ func (self *BuilderConfig) LogoutHeader(logoutHeader string) *BuilderConfig {
 	return self
 }
 
-func (self *BuilderConfig) SessionStore(sessionStore sessions.Store) *BuilderConfig {
+func (self *BuilderConfig) SessionStore(sessionStore Store) *BuilderConfig {
 	self.sessionStore = sessionStore
 	return self
 }
@@ -97,7 +96,7 @@ func (self *BuilderConfig) toIdFactory() func() string {
 	return idFactory
 }
 
-func (self *BuilderConfig) toSessionStore() sessions.Store {
+func (self *BuilderConfig) toSessionStore() Store {
 	sessionStore := self.sessionStore
 	if sessionStore == nil {
 		sessionStore = defaultSessionStore

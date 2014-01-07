@@ -1,8 +1,7 @@
-package auth
+package sessions
 
 import (
 	"github.com/savaki/fronttier/mock"
-	"github.com/savaki/fronttier/sessions"
 	"net/http"
 )
 
@@ -10,7 +9,7 @@ type NewSessionFilter struct {
 	idFactory       func() string
 	reservedHeaders []string
 	template        *http.Cookie
-	sessionStore    sessions.Store
+	sessionStore    Store
 }
 
 func (self *NewSessionFilter) createSessionWhenRequired(source http.ResponseWriter, target http.ResponseWriter) {

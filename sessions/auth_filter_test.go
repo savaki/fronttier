@@ -1,8 +1,7 @@
-package auth
+package sessions
 
 import (
 	"github.com/savaki/fronttier/mock"
-	"github.com/savaki/fronttier/sessions"
 	. "github.com/smartystreets/goconvey/convey"
 	"net/http"
 	"testing"
@@ -13,7 +12,7 @@ func TestAuthFilter(t *testing.T) {
 	var request *http.Request
 	var handler *mock.Handler
 	var w *mock.ResponseWriter
-	var sessionStore sessions.Store
+	var sessionStore Store
 	var builder *BuilderConfig
 
 	header := "X-Header"
@@ -25,7 +24,7 @@ func TestAuthFilter(t *testing.T) {
 		handler = &mock.Handler{}
 		w = &mock.ResponseWriter{}
 		request, _ = http.NewRequest("GET", "http://www.forge.com", nil)
-		sessionStore = sessions.Memory()
+		sessionStore = Memory()
 		builder = Builder().
 			ReservedHeaders(header).
 			LogoutHeader(logoutHeader).

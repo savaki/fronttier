@@ -1,8 +1,7 @@
-package auth
+package sessions
 
 import (
 	"github.com/nu7hatch/gouuid"
-	"github.com/savaki/fronttier/sessions"
 )
 
 var defaultIdFactory = func() string {
@@ -10,4 +9,4 @@ var defaultIdFactory = func() string {
 	return id.String()
 }
 
-var defaultSessionStore = sessions.Memory()
+var defaultSessionStore = Memory()

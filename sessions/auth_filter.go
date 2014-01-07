@@ -1,8 +1,7 @@
-package auth
+package sessions
 
 import (
 	"github.com/savaki/fronttier/mock"
-	"github.com/savaki/fronttier/sessions"
 	"net/http"
 )
 
@@ -12,7 +11,7 @@ type AuthFilter struct {
 	reservedHeaders []string
 	logoutHeader    string
 	template        *http.Cookie
-	sessionStore    sessions.Store
+	sessionStore    Store
 }
 
 func (self *AuthFilter) stripReservedHeaders(req *http.Request) *http.Request {

@@ -1,4 +1,4 @@
-package auth
+package sessions
 
 import (
 	"net/http"

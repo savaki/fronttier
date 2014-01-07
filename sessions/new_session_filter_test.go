@@ -1,9 +1,8 @@
-package auth
+package sessions
 
 import (
 	"errors"
 	"github.com/savaki/fronttier/mock"
-	"github.com/savaki/fronttier/sessions"
 	. "github.com/smartystreets/goconvey/convey"
 	"net/http"
 	"testing"
@@ -12,7 +11,7 @@ import (
 func TestNewSessionFilter(t *testing.T) {
 	var builder *BuilderConfig
 	var handler *mock.Handler
-	var sessionStore sessions.Store
+	var sessionStore Store
 	header := "X-Header"
 
 	Convey("Given a Builder", t, func() {
@@ -48,7 +47,7 @@ func TestNewSessionFilter(t *testing.T) {
 	Convey("Given a NewSessionFilter", t, func() {
 		value := "123"
 		handler = &mock.Handler{OutHeader: map[string]string{header: value}}
-		sessionStore = sessions.Memory()
+		sessionStore = Memory()
 
 		Convey("When the handler returns the reserved headers, then I expect to create a new session", func() {
 			filter, err := Builder().

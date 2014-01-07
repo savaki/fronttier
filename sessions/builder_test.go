@@ -1,8 +1,7 @@
-package auth
+package sessions
 
 import (
 	"errors"
-	"github.com/savaki/fronttier/sessions"
 	. "github.com/smartystreets/goconvey/convey"
 	"testing"
 )
@@ -153,7 +152,7 @@ func TestBuilder(t *testing.T) {
 		})
 
 		Convey("When sessionStore is assigned", func() {
-			sessionStore := sessions.Memory()
+			sessionStore := Memory()
 			builder = builder.SessionStore(sessionStore)
 
 			Convey("Then authFilter.reservedHeaders should be reservedHeaders", func() {
