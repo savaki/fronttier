@@ -20,7 +20,7 @@ Let's start with a simple example.
 
 Suppose our site consists of three services as shown in the following diagram:
 
-![image](tree/master/docs/Overview.png)
+![image](docs/Overview.png)
 
 We could configure Fronttier as follows:
 
@@ -62,7 +62,7 @@ If a route marked with #SessionFactory returns a reserved header:
 2. place all the reserved headers and their values into the session
 3. return to the user a cookie that identifies the session
 
-![image](tree/master/docs/Login.png)
+![image](docs/Login.png)
 
 #### Handling Requests:
 
@@ -71,7 +71,7 @@ Once a session has been created, if a request is received that contains a valid 
 1. the reserved headers will be retrieved from the service
 2. and added to the request when sent the underlying service
 
-![image](tree/master/docs/Request.png)
+![image](docs/Request.png)
 
 #### Logging Out:
 
@@ -80,13 +80,13 @@ To logout, any service may send the X-Logout header:
 1. delete the session from the session store
 2. clear the cookie
 
-![image](tree/master/docs/Logout.png)
+![image](docs/Logout.png)
 
 #### Protecting Against Forgery:
 
 To defend against forgery, any reserved header received from the browser will be removed.  In the future, fronttier may include a signed header similar to how Amazon handles security.
 
-![image](tree/master/docs/Forgery.png)
+![image](docs/Forgery.png)
 
 ## Sample Code
 
