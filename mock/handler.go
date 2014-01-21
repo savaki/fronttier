@@ -10,6 +10,7 @@ type Handler struct {
 	InHeader  map[string][]string
 	InPath    string
 	InContent []byte
+	InReq     *http.Request
 
 	OutStatusCode int
 	OutHeader     map[string]string
@@ -19,6 +20,7 @@ type Handler struct {
 func (self *Handler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	// capture the in
 	if req != nil {
+		self.InReq = req
 		self.InMethod = req.Method
 		self.InPath = req.URL.Path
 		self.InHeader = make(map[string][]string)

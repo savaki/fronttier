@@ -6,6 +6,7 @@ import (
 )
 
 type Router struct {
+	filters  []FilterFunc
 	routes   []*Route
 	sessions *sessions.BuilderConfig
 	ready    bool
@@ -27,6 +28,11 @@ func (self *Router) PathPrefix(prefix string) *Route {
 
 func (self *Router) Methods(methods ...string) *Route {
 	return self.NewRoute().Methods(methods...)
+}
+
+func (self *Router) Filter(filter FilterFunc) *Router {
+	self.filters = append(self.filters, filter)
+	return self
 }
 
 func (self *Router) HandleFunc(prefix string, handlerFunc http.HandlerFunc) *Router {
@@ -54,6 +60,12 @@ func (self *Router) prepare() {
 				if route.sessionFactory {
 					route.Filter(sessionFilter.Filter)
 				}
+			}
+		}
+
+		for _, route := range self.routes {
+			for _, filter := range self.filters {
+				route.Filter(filter)
 			}
 		}
 

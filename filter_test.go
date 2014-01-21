@@ -6,6 +6,19 @@ import (
 	"testing"
 )
 
+func mockFilterFunc(headerName, headerValue string) func(http.ResponseWriter, *http.Request, http.HandlerFunc) {
+	return func(w http.ResponseWriter, req *http.Request, handler http.HandlerFunc) {
+		value := req.Header.Get(headerName)
+		if value == "" {
+			value = headerValue
+		} else {
+			value = value + "," + headerValue
+		}
+		req.Header.Set(headerName, value)
+		handler(w, req)
+	}
+}
+
 func TestFilterFunc(t *testing.T) {
 	var filter FilterFunc
 	var req *http.Request

@@ -42,6 +42,13 @@ func TestRouter(t *testing.T) {
 			})
 		})
 
+		Convey("When I add a global #Filter", func() {
+			filter := func(w http.ResponseWriter, req *http.Request, handlerFunc http.HandlerFunc) {
+
+			}
+			router.Filter(filter)
+		})
+
 		Convey("When I create a #NewRoute", func() {
 			route = router.NewRoute()
 
@@ -96,6 +103,21 @@ func TestRouter(t *testing.T) {
 
 				So(handler.InMethod, ShouldEqual, "")
 				So(w.StatusCode, ShouldEqual, 404)
+			})
+		})
+
+		Convey("When I apply global filters via #Filter", func() {
+			headerName := "X-Sample"
+			filter1 := mockFilterFunc(headerName, "a")
+			filter2 := mockFilterFunc(headerName, "b")
+			router.Filter(filter1).Filter(filter2)
+			router.Methods("GET").Handler(handler)
+
+			Convey("Then I expect those filters to be executed in the order provided", func() {
+				router.ServeHTTP(nil, req)
+
+				So(handler.InReq, ShouldNotBeNil)
+				So(handler.InReq.Header.Get(headerName), ShouldEqual, "a,b")
 			})
 		})
 

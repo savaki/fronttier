@@ -15,6 +15,8 @@ type BuilderConfig struct {
 	logoutHeader      string
 	reservedHeaders   []string
 	sessionStore      Store
+	sign              SignerFunc
+	verify            VerifierFunc
 	err               error
 }
 
@@ -60,6 +62,24 @@ func (self *BuilderConfig) LogoutHeader(logoutHeader string) *BuilderConfig {
 
 func (self *BuilderConfig) SessionStore(sessionStore Store) *BuilderConfig {
 	self.sessionStore = sessionStore
+	return self
+}
+
+func (self *BuilderConfig) Signer(signer Signer) *BuilderConfig {
+	return self.SignerFunc(signer.Sign)
+}
+
+func (self *BuilderConfig) SignerFunc(sign SignerFunc) *BuilderConfig {
+	self.sign = sign
+	return self
+}
+
+func (self *BuilderConfig) Verifier(verifier Verifier) *BuilderConfig {
+	return self.VerifierFunc(verifier.Verify)
+}
+
+func (self *BuilderConfig) VerifierFunc(verify VerifierFunc) *BuilderConfig {
+	self.verify = verify
 	return self
 }
 
@@ -136,6 +156,8 @@ func (self *BuilderConfig) BuildAuthFilter() (*AuthFilter, error) {
 		sessionStore:    self.toSessionStore(),
 		idFactory:       self.toIdFactory(),
 		template:        self.toCookieTemplate(),
+		sign:            self.sign,
+		verify:          self.verify,
 	}, nil
 }
 

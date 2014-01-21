@@ -4,3 +4,4 @@
 *.out
 basic_proxy
 apps/fronttier/fronttier
+*.rdb

@@ -3,11 +3,30 @@ package sessions
 import (
 	"errors"
 	. "github.com/smartystreets/goconvey/convey"
+	"net/http"
 	"testing"
 )
 
+type MockSigner struct {
+	InSign    *http.Request
+	InVerify  *http.Request
+	OutVerify bool
+}
+
+func (self *MockSigner) Sign(req *http.Request) {
+	self.InSign = req
+}
+
+func (self *MockSigner) Verify(req *http.Request) bool {
+	self.InVerify = req
+	return self.OutVerify
+}
+
 func TestBuilder(t *testing.T) {
 	var builder *BuilderConfig
+	var signer *MockSigner
+	var filter *AuthFilter
+	var err error
 
 	Convey("Given a builder", t, func() {
 		builder = Builder().ReservedHeaders("X-Header")
@@ -16,7 +35,7 @@ func TestBuilder(t *testing.T) {
 			builder.err = errors.New("I have an internal error")
 
 			Convey("Then I expect #BuildAuthFilter() to fail", func() {
-				_, err := builder.BuildAuthFilter()
+				_, err = builder.BuildAuthFilter()
 
 				So(err, ShouldNotBeNil)
 			})
@@ -27,7 +46,7 @@ func TestBuilder(t *testing.T) {
 			builder = builder.CookieName(cookieName)
 
 			Convey("Then authFilter.template.Name should be cookieName", func() {
-				filter, err := builder.BuildAuthFilter()
+				filter, err = builder.BuildAuthFilter()
 
 				So(err, ShouldBeNil)
 				So(filter, ShouldNotBeNil)
@@ -37,11 +56,75 @@ func TestBuilder(t *testing.T) {
 
 		Convey("When cookieName is NOT assigned", func() {
 			Convey("Then authFilter.template.Name should default to 'id'", func() {
-				filter, err := builder.BuildAuthFilter()
+				filter, err = builder.BuildAuthFilter()
 
 				So(err, ShouldBeNil)
 				So(filter, ShouldNotBeNil)
 				So(filter.template.Name, ShouldEqual, "id")
+			})
+		})
+
+		Convey("When the signerFunc is assigned", func() {
+			signer = &MockSigner{}
+			filter, err = builder.SignerFunc(signer.Sign).BuildAuthFilter()
+
+			Convey("Then authFilter.sign should be set", func() {
+				So(err, ShouldBeNil)
+				So(filter, ShouldNotBeNil)
+				So(filter.sign, ShouldNotEqual, nil)
+			})
+		})
+
+		Convey("When the #Signer is assigned", func() {
+			signer = &MockSigner{}
+			filter, err = builder.Signer(signer).BuildAuthFilter()
+
+			Convey("Then authFilter.verify should be set", func() {
+				So(err, ShouldBeNil)
+				So(filter, ShouldNotBeNil)
+				So(filter.sign, ShouldNotEqual, nil)
+			})
+		})
+
+		Convey("When the #Signer is NOT assigned", func() {
+			filter, err = builder.BuildAuthFilter()
+
+			Convey("Then there should be no default value", func() {
+				So(err, ShouldBeNil)
+				So(filter, ShouldNotBeNil)
+				So(filter.sign, ShouldEqual, nil)
+			})
+		})
+
+		Convey("When the #Verifier is assigned", func() {
+			signer = &MockSigner{}
+			filter, err = builder.Verifier(signer).BuildAuthFilter()
+
+			Convey("Then authFilter.verify should be set", func() {
+				So(err, ShouldBeNil)
+				So(filter, ShouldNotBeNil)
+				So(filter.verify, ShouldNotEqual, nil)
+			})
+		})
+
+		Convey("When the #VerifierFunc is assigned", func() {
+			signer = &MockSigner{}
+			filter, err = builder.VerifierFunc(signer.Verify).BuildAuthFilter()
+
+			Convey("Then authFilter.verify should be set", func() {
+				So(err, ShouldBeNil)
+				So(filter, ShouldNotBeNil)
+				So(filter.verify, ShouldNotEqual, nil)
+			})
+		})
+
+		Convey("When the #Verifier is NOT assigned", func() {
+			filter, err = builder.BuildAuthFilter()
+
+			Convey("Then authFilter.verify should be set", func() {
+				So(err, ShouldBeNil)
+				So(filter, ShouldNotBeNil)
+				So(filter.verify, ShouldEqual, nil)
 			})
 		})
 
@@ -50,7 +133,7 @@ func TestBuilder(t *testing.T) {
 			builder = builder.CookieDomain(cookieDomain)
 
 			Convey("Then authFilter.template.Domain should be cookieDomain", func() {
-				filter, err := builder.BuildAuthFilter()
+				filter, err = builder.BuildAuthFilter()
 
 				So(err, ShouldBeNil)
 				So(filter, ShouldNotBeNil)
@@ -63,7 +146,7 @@ func TestBuilder(t *testing.T) {
 			builder = builder.CookiePath(cookiePath)
 
 			Convey("Then authFilter.template.Path should be cookiePath", func() {
-				filter, err := builder.BuildAuthFilter()
+				filter, err = builder.BuildAuthFilter()
 
 				So(err, ShouldBeNil)
 				So(filter, ShouldNotBeNil)
@@ -73,7 +156,7 @@ func TestBuilder(t *testing.T) {
 
 		Convey("When cookiePath is NOT assigned", func() {
 			Convey("Then authFilter.template.Path should default to /", func() {
-				filter, err := builder.BuildAuthFilter()
+				filter, err = builder.BuildAuthFilter()
 
 				So(err, ShouldBeNil)
 				So(filter, ShouldNotBeNil)
@@ -89,7 +172,7 @@ func TestBuilder(t *testing.T) {
 			builder = builder.IdFactory(idFactory)
 
 			Convey("Then authFilter.idFactory should be idFactory", func() {
-				filter, err := builder.BuildAuthFilter()
+				filter, err = builder.BuildAuthFilter()
 
 				So(err, ShouldBeNil)
 				So(filter, ShouldNotBeNil)
@@ -99,7 +182,7 @@ func TestBuilder(t *testing.T) {
 
 		Convey("When idFactory is NOT assigned", func() {
 			Convey("Then authFilter.idFactory should use the default uuid factory", func() {
-				filter, err := builder.BuildAuthFilter()
+				filter, err = builder.BuildAuthFilter()
 
 				So(err, ShouldBeNil)
 				So(filter, ShouldNotBeNil)
@@ -112,7 +195,7 @@ func TestBuilder(t *testing.T) {
 			builder = builder.ReservedHeaders(header)
 
 			Convey("Then authFilter.reservedHeaders should be reservedHeaders", func() {
-				filter, err := builder.BuildAuthFilter()
+				filter, err = builder.BuildAuthFilter()
 
 				So(err, ShouldBeNil)
 				So(filter, ShouldNotBeNil)
@@ -122,7 +205,7 @@ func TestBuilder(t *testing.T) {
 
 		Convey("When reservedHeaders is NOT assigned", func() {
 			Convey("Then #BuildAuthFilter should fail", func() {
-				_, err := Builder().BuildAuthFilter()
+				_, err = Builder().BuildAuthFilter()
 
 				So(err, ShouldNotBeNil)
 			})
@@ -143,7 +226,7 @@ func TestBuilder(t *testing.T) {
 
 		Convey("When logoutHeader is NOT assigned", func() {
 			Convey("Then logoutHeader should default to X-Logout", func() {
-				filter, err := builder.BuildAuthFilter()
+				filter, err = builder.BuildAuthFilter()
 
 				So(err, ShouldBeNil)
 				So(filter, ShouldNotBeNil)
@@ -156,7 +239,7 @@ func TestBuilder(t *testing.T) {
 			builder = builder.SessionStore(sessionStore)
 
 			Convey("Then authFilter.reservedHeaders should be reservedHeaders", func() {
-				filter, err := builder.BuildAuthFilter()
+				filter, err = builder.BuildAuthFilter()
 
 				So(err, ShouldBeNil)
 				So(filter, ShouldNotBeNil)
@@ -178,7 +261,7 @@ func TestBuilder(t *testing.T) {
 			builder = builder.TimeoutMinutes(timeoutMinutes)
 
 			Convey("Then authFilter.timeoutMinutes should be timeoutMinutes", func() {
-				filter, err := builder.BuildAuthFilter()
+				filter, err = builder.BuildAuthFilter()
 
 				So(err, ShouldBeNil)
 				So(filter, ShouldNotBeNil)
@@ -188,7 +271,7 @@ func TestBuilder(t *testing.T) {
 
 		Convey("When timeoutMinutes is NOT assigned", func() {
 			Convey("Then timeoutMinutes should default to 15", func() {
-				filter, err := builder.BuildAuthFilter()
+				filter, err = builder.BuildAuthFilter()
 
 				So(err, ShouldBeNil)
 				So(filter.template.MaxAge, ShouldEqual, 15*60)
