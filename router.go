@@ -16,6 +16,18 @@ func NewRouter() *Router {
 	return &Router{}
 }
 
+func (self *Router) Err() error {
+	self.prepare()
+
+	for _, route := range self.routes {
+		if err := route.Err(); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (self *Router) NewRoute() *Route {
 	route := &Route{}
 	self.routes = append(self.routes, route)

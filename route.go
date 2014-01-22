@@ -15,6 +15,7 @@ type Route struct {
 	proxyConfig    *proxy.BuilderConfig
 	all            http.HandlerFunc
 	sessionFactory bool
+	err            error
 }
 
 func (self *Route) PathPrefix(prefix string) *Route {
@@ -68,11 +69,17 @@ func (self *Route) withProxy(f func()) *Route {
 	}
 	f()
 	handler, err := self.proxyConfig.Build()
-	if err == nil {
+	if err != nil {
+		self.err = err
+	} else {
 		self.target = handler.ServeHTTP
 		self.all = flatten(self.filters, self.target)
 	}
 	return self
+}
+
+func (self *Route) Err() error {
+	return self.err
 }
 
 func (self *Route) Proxy(rawurl string) *Route {
