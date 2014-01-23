@@ -6,6 +6,8 @@ import (
 
 type FilterFunc func(http.ResponseWriter, *http.Request, http.HandlerFunc)
 
+type FilterWithNameFunc func(http.ResponseWriter, *http.Request, http.HandlerFunc, string)
+
 func flatten(filters []FilterFunc, target http.HandlerFunc) http.HandlerFunc {
 	if filters == nil || len(filters) == 0 {
 		return target
