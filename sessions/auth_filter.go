@@ -6,16 +6,16 @@ import (
 )
 
 type Signer interface {
-	Sign(req *http.Request)
+	Sign(name string, req *http.Request)
 }
 
-type SignerFunc func(req *http.Request)
+type SignerFunc func(name string, req *http.Request)
 
 type Verifier interface {
-	Verify(req *http.Request) bool
+	Verify(name string, req *http.Request) bool
 }
 
-type VerifierFunc func(req *http.Request) bool
+type VerifierFunc func(name string, req *http.Request) bool
 
 // AuthFilter provides authentication for the services that it's filtering.
 type AuthFilter struct {
@@ -62,22 +62,22 @@ func (self *AuthFilter) transferHeaders(cookie *http.Cookie, source http.Respons
 
 // attempt to authorize this request.
 // returns true
-func (self *AuthFilter) authorize(req *http.Request) (*http.Cookie, bool) {
-	if self.verify != nil && self.verify(req) {
+func (self *AuthFilter) authorize(name string, req *http.Request) (*http.Cookie, bool) {
+	if self.verify != nil && self.verify(name, req) {
 		return nil, true
 	}
 
 	req = self.stripReservedHeaders(req)
 	req, cookie := self.insertSessionInfo(req)
 	if self.sign != nil {
-		self.sign(req)
+		self.sign(name, req)
 	}
 
 	return cookie, cookie != nil
 }
 
-func (self *AuthFilter) Filter(w http.ResponseWriter, req *http.Request, handlerFunc http.HandlerFunc) {
-	cookie, _ := self.authorize(req)
+func (self *AuthFilter) Filter(w http.ResponseWriter, req *http.Request, handlerFunc http.HandlerFunc, name string) {
+	cookie, _ := self.authorize(name, req)
 
 	// capture the response from our service
 	tempWriter := &mock.ResponseWriter{}

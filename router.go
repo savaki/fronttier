@@ -68,7 +68,7 @@ func (self *Router) prepare() {
 			sessionFilter, _ := self.sessions.BuildNewSessionFilter()
 
 			for _, route := range self.routes {
-				route.Filter(authFilter.Filter)
+				route.FilterWithName(authFilter.Filter)
 				if route.sessionFactory {
 					route.Filter(sessionFilter.Filter)
 				}

@@ -8,16 +8,20 @@ import (
 )
 
 type MockSigner struct {
-	InSign    *http.Request
-	InVerify  *http.Request
-	OutVerify bool
+	InSign            *http.Request
+	InSignRouteName   string
+	InVerify          *http.Request
+	InVerifyRouteName string
+	OutVerify         bool
 }
 
-func (self *MockSigner) Sign(req *http.Request) {
+func (self *MockSigner) Sign(routeName string, req *http.Request) {
+	self.InSignRouteName = routeName
 	self.InSign = req
 }
 
-func (self *MockSigner) Verify(req *http.Request) bool {
+func (self *MockSigner) Verify(routeName string, req *http.Request) bool {
+	self.InVerifyRouteName = routeName
 	self.InVerify = req
 	return self.OutVerify
 }

@@ -21,6 +21,7 @@ func TestAuthFilter(t *testing.T) {
 	values := map[string]string{header: "123"}
 	cookieName := "id"
 	logoutHeader := "X-Logout"
+	routeName := "sample-route"
 
 	Convey("Given an AuthFilter", t, func() {
 		handler = &mock.Handler{}
@@ -36,7 +37,7 @@ func TestAuthFilter(t *testing.T) {
 		Convey("When the client attempts to forge a header", func() {
 			req.Header.Set(header, "blah")
 			filter, _ = builder.BuildAuthFilter()
-			filter.Filter(w, req, handler.ServeHTTP)
+			filter.Filter(w, req, handler.ServeHTTP, routeName)
 
 			Convey("Then the filter should strip out the header", func() {
 				So(len(handler.InHeader), ShouldEqual, 0)
@@ -49,7 +50,7 @@ func TestAuthFilter(t *testing.T) {
 			req.AddCookie(cookie)
 
 			filter, _ = builder.SessionStore(sessionStore).BuildAuthFilter()
-			filter.Filter(w, req, handler.ServeHTTP)
+			filter.Filter(w, req, handler.ServeHTTP, routeName)
 
 			Convey("Then values should be retrieved from the sessionStore and placed in the header", func() {
 				So(handler.InHeader[header], ShouldContain, "123")
@@ -61,7 +62,7 @@ func TestAuthFilter(t *testing.T) {
 			req.AddCookie(cookie)
 
 			filter, _ = builder.SessionStore(sessionStore).BuildAuthFilter()
-			filter.Filter(w, req, handler.ServeHTTP)
+			filter.Filter(w, req, handler.ServeHTTP, routeName)
 
 			Convey("Then the req should be handled normally", func() {
 				So(handler.InMethod, ShouldEqual, req.Method)
@@ -77,7 +78,7 @@ func TestAuthFilter(t *testing.T) {
 			handler.OutHeader = map[string]string{logoutHeader: "log-me-out"}
 
 			filter, _ = builder.SessionStore(sessionStore).BuildAuthFilter()
-			filter.Filter(w, req, handler.ServeHTTP)
+			filter.Filter(w, req, handler.ServeHTTP, routeName)
 
 			Convey("Then the session cookie should be cleared", func() {
 				session, err := sessionStore.Get(session.Id)
@@ -92,7 +93,7 @@ func TestAuthFilter(t *testing.T) {
 				handler.OutContent = []byte("hello world")
 
 				filter, _ = builder.BuildAuthFilter()
-				filter.Filter(w, req, handler.ServeHTTP)
+				filter.Filter(w, req, handler.ServeHTTP, routeName)
 
 				So(w.String(), ShouldEqual, string(handler.OutContent))
 			})
@@ -105,7 +106,7 @@ func TestAuthFilter(t *testing.T) {
 			filter, _ := builder.Verifier(verifier).BuildAuthFilter()
 
 			Convey("Then #authorize should always return true", func() {
-				cookie, valid = filter.authorize(req)
+				cookie, valid = filter.authorize(routeName, req)
 
 				So(cookie, ShouldBeNil)
 				So(valid, ShouldBeTrue)
@@ -117,7 +118,7 @@ func TestAuthFilter(t *testing.T) {
 			filter, _ := builder.Signer(signer).BuildAuthFilter()
 
 			Convey("Then #authorize should call the sign func", func() {
-				filter.authorize(req)
+				filter.authorize(routeName, req)
 
 				So(signer.InSign, ShouldResemble, req)
 			})
